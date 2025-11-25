@@ -1,0 +1,13 @@
+# Forzar todos los archivos de texto a usar LF en el repositorio
+* text=auto eol=lf
+
+# Archivos específicos de Node.js
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.json text
+*.css text
+*.scss text
+*.html text
+*.md text
