@@ -1,128 +1,243 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function RegisterPage() {
-  // --- ALMACÉN DE DATOS TEMPORALES ---
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); 
-  const [mensaje, setMensaje] = useState(""); 
+export default function Register() {
   const router = useRouter();
 
-  // --- (Protección de Ruta) ---
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
+
+  const [errors, setErrors] = useState<{ [k: string]: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // Ensure admin exists (same behaviour as login page)
   useEffect(() => {
-    const verificarSesion = async () => {
-      try {
-        // CAMBIO: Llamamos a la API interna de Next.js
-        const res = await fetch("/api/check_session");
-        const data = await res.json();
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const adminExists = users.find((u: any) => u.email === "admin@umoar.edu");
+    if (!adminExists) {
+      users.push({
+        name: "Administrador",
+        email: "admin@umoar.edu",
+        password: "admin123",
+        role: "admin",
+      });
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+  }, []);
 
-        // Solo los ADMIN pueden ver esta página.
-        if (!data.success || data.usuario.role !== "admin") {
-          router.push("/"); 
-        }
-      } catch (err) {
-        console.error(err);
-        router.push("/");
-      }
-    };
-    verificarSesion();
-  }, [router]);
+  function validate() {
+    const e: { [k: string]: string } = {};
 
-  // --- PROCESO DE REGISTRO ---
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); 
-    setMensaje("");
+    if (!form.name.trim()) e.name = "Ingrese su nombre completo.";
+    if (!form.email.trim()) e.email = "Ingrese su correo universitario.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      e.email = "Correo no válido.";
+
+    // opcional: exigir dominio universitario (descomentar si lo quieres)
+    // if (!form.email.endsWith(".edu")) e.email = "Use un correo universitario (.edu).";
+
+    if (!form.password) e.password = "Ingrese una contraseña.";
+    else if (form.password.length < 6)
+      e.password = "La contraseña debe tener al menos 6 caracteres.";
+
+    if (form.password !== form.confirm) e.confirm = "Las contraseñas no coinciden.";
+
+    // comprobar si el correo ya existe
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (form.email && users.find((u: any) => u.email === form.email)) {
+      e.email = "Ya existe una cuenta con ese correo.";
+    }
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setSubmitting(true);
 
     try {
-      // CAMBIO: Enviamos los datos a la API interna de registro
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre_completo: nombre, email, password, role }),
-      });
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const newUser = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: "user",
+      };
 
-      const data = await res.json();
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
 
-      if (res.ok && data.success) {
-        setMensaje(`Usuario registrado: ${email}`);
-        setNombre("");
-        setEmail("");
-        setPassword("");
-        setRole("user"); 
-      } else {
-        setMensaje(data.message || data.error || "Error desconocido");
-      }
+      alert("Registro exitoso. Ahora puede iniciar sesión.");
+      router.push("/login");
     } catch (err) {
       console.error(err);
-      setMensaje("Error de conexión con el servidor");
+      alert("Ocurrió un error al guardar. Intente nuevamente.");
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
 
-  // --- CERRAR SESIÓN ---
-  const handleLogout = async () => {
-    try {
-      // CAMBIO: Llamada simple a la API interna de logout
-      await fetch("/api/logout"); 
-      router.push("/"); 
-    } catch (err) {
-      console.error("Error al cerrar sesión", err);
-    }
-  };
-
-  // --- INTERFAZ VISUAL ---
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4 text-center">Registrar Usuarios</h1>
-      
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="text"
-          placeholder="Nombre completo"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          required
-          className="border p-2 rounded"
-        />
-        <input
-          type="email"
-          placeholder="Correo @umoar.edu.sv"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="border p-2 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="border p-2 rounded"
-        />
-        
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="border p-2 rounded">
-          <option value="user">Usuario normal</option>
-          <option value="admin">Administrador</option>
-        </select>
-        
-        <button type="submit" className="mt-1.5 w-fit mx-auto px-6 font-bold bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors cursor-pointer">
-          Registrar
-        </button>
+    <div
+      style={{
+        height: "100vh",
+        background: "linear-gradient(135deg, #1d3557, #457b9d)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 420,
+          background: "#fff",
+          padding: 36,
+          borderRadius: 12,
+          boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
+        }}
+      >
+        <h2 style={{ margin: 0, marginBottom: 8, color: "#1d3557" }}>
+          Crear cuenta
+        </h2>
+        <p style={{ marginTop: 0, marginBottom: 18, color: "#555" }}>
+          Regístrate con tu correo universitario para publicar investigaciones.
+        </p>
 
-        {/* CAMBIO IMPORTANTE: type="button" para evitar que envíe el formulario al cerrar sesión */}
-        <button 
-          type="button"
-          onClick={handleLogout} 
-          className="mt-2 w-fit mx-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
-        >
-          Cerrar sesión
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <label style={{ fontSize: 13, color: "#333" }}>
+            Nombre completo
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Ej. María Pérez"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                padding: "10px 12px",
+                fontSize: 15,
+                borderRadius: 8,
+                border: errors.name ? "1px solid #e74c3c" : "1px solid #ddd",
+                outline: "none",
+              }}
+            />
+            {errors.name && (
+              <div style={{ color: "#e74c3c", fontSize: 12, marginTop: 6 }}>{errors.name}</div>
+            )}
+          </label>
 
-      {mensaje && <p className="mt-2 text-black text-center">{mensaje}</p>}
+          <label style={{ fontSize: 13, color: "#333" }}>
+            Correo universitario
+            <input
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="ejemplo@universidad.edu.sv"
+              type="email"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                padding: "10px 12px",
+                fontSize: 15,
+                borderRadius: 8,
+                border: errors.email ? "1px solid #e74c3c" : "1px solid #ddd",
+                outline: "none",
+              }}
+            />
+            {errors.email && (
+              <div style={{ color: "#e74c3c", fontSize: 12, marginTop: 6 }}>{errors.email}</div>
+            )}
+          </label>
+
+          <label style={{ fontSize: 13, color: "#333" }}>
+            Contraseña
+            <input
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="Mínimo 6 caracteres"
+              type="password"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                padding: "10px 12px",
+                fontSize: 15,
+                borderRadius: 8,
+                border: errors.password ? "1px solid #e74c3c" : "1px solid #ddd",
+                outline: "none",
+              }}
+            />
+            {errors.password && (
+              <div style={{ color: "#e74c3c", fontSize: 12, marginTop: 6 }}>{errors.password}</div>
+            )}
+          </label>
+
+          <label style={{ fontSize: 13, color: "#333" }}>
+            Confirmar contraseña
+            <input
+              value={form.confirm}
+              onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+              placeholder="Repite la contraseña"
+              type="password"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                padding: "10px 12px",
+                fontSize: 15,
+                borderRadius: 8,
+                border: errors.confirm ? "1px solid #e74c3c" : "1px solid #ddd",
+                outline: "none",
+              }}
+            />
+            {errors.confirm && (
+              <div style={{ color: "#e74c3c", fontSize: 12, marginTop: 6 }}>{errors.confirm}</div>
+            )}
+          </label>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              marginTop: 6,
+              padding: "12px 14px",
+              borderRadius: 8,
+              border: "none",
+              background: submitting ? "#9fb6c7" : "#1d3557",
+              color: "#fff",
+              fontSize: 15,
+              cursor: submitting ? "default" : "pointer",
+            }}
+            onMouseOver={(e) => {
+              if (!submitting) (e.currentTarget.style.background = "#27496d");
+            }}
+            onMouseOut={(e) => {
+              if (!submitting) (e.currentTarget.style.background = "#1d3557");
+            }}
+          >
+            {submitting ? "Guardando..." : "Crear cuenta"}
+          </button>
+        </form>
+
+        <div style={{ marginTop: 14, fontSize: 14, color: "#555" }}>
+          ¿Ya tienes cuenta?{" "}
+          <a
+            href="/login"
+            style={{ color: "#457b9d", textDecoration: "none", fontWeight: 600 }}
+          >
+            Inicia sesión
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
