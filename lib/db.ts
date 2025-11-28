@@ -1,5 +1,10 @@
 import mysql from 'mysql2/promise';
 
+// Variable global para guardar la conexión en desarrollo
+const globalForDb = globalThis as unknown as {
+  conn: mysql.Pool | undefined;
+};
+
 export const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -10,3 +15,6 @@ export const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
+
+// En desarrollo, guardamos la conexión en la variable global
+if (process.env.NODE_ENV !== 'production') globalForDb.conn = pool;

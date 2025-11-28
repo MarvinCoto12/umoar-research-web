@@ -95,7 +95,7 @@ export default function RegisterPage() {
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          
+
           {/* Nombre */}
           <label style={{ fontSize: 13, color: "#333", fontWeight: 600 }}>
             Nombre completo
@@ -203,9 +203,9 @@ export default function RegisterPage() {
           </button>
 
           {/* Botón Volver (Gris suave para diferenciar) */}
-          <button 
+          <button
             type="button"
-            onClick={handleGoHome} 
+            onClick={handleGoHome}
             style={{
               padding: "10px 14px",
               borderRadius: 8,
@@ -225,11 +225,11 @@ export default function RegisterPage() {
 
         {/* Mensajes de Feedback */}
         {mensaje && (
-          <div style={{ 
-            marginTop: 18, 
-            padding: "10px", 
-            borderRadius: 6, 
-            textAlign: "center", 
+          <div style={{
+            marginTop: 18,
+            padding: "10px",
+            borderRadius: 6,
+            textAlign: "center",
             fontSize: 14,
             backgroundColor: mensaje.includes("Éxito") ? "#dcfce7" : "#fee2e2",
             color: mensaje.includes("Éxito") ? "#166534" : "#991b1b"
