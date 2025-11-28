@@ -93,9 +93,17 @@ export default function UploadForm({ onSave }: Props) {
       formData.append('description', description);
       formData.append('file', file);
 
-      // SIMULACIÓN (Aquí iría el fetch real a /api/upload)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Datos enviados:", Object.fromEntries(formData));
+      const res = await fetch('/api/uploads', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        setMessage({ text: result.error || 'Error al subir la investigación.', type: 'error' });
+        return;
+      }
 
       setMessage({ text: 'Investigación publicada correctamente.', type: 'success' });
 
