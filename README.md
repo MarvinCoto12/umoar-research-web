@@ -1,4 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Para probar la base de datos tienes que crear tu propio archivo .env.local 
+
+Como crear el archivo .env.local:
+
+Debes crear un nuevo archivo llamado .env.local en la raíz del proyecto.
+
+Debes copiar y pegar el siguiente contenido, ajustando los valores si tu configuración es diferente (por ejemplo, si tu MySQL tiene contraseña):
+
+# Configuración de Base de Datos (MySQL)
+DB_HOST=localhost
+DB_USER=root
+# Si tu MySQL tiene contraseña, la pones aquí en "DB_PASSWORD" despues de "=". Si no, lo dejas vacío.
+DB_PASSWORD=
+DB_NAME=umoar_db
+DB_PORT=3306
+
+# Configuración del Servidor Next.js
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Seguridad de Sesiones
+# Debes inventar una clave larga (mínimo 32 caracteres) o usar esta de ejemplo:
+SESSION_PASSWORD=una_clave_super_secreta_y_larga_para_el_desarrollo_local_123
 
 ## Getting Started
 

@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { pool } from "@/lib/db"; 
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "@/lib/session";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  database: process.env.DB_NAME || "database",
-  password: process.env.DB_PASSWORD || "",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
 
 export async function POST(request: Request) {
   try {
@@ -32,8 +22,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "El correo debe ser @umoar.edu.sv" }, { status: 400 });
     }
 
-    // 2. Seguridad de Roles (Lógica migrada de PHP)
-    // Verificamos quién está haciendo la petición leyendo su cookie
+    // 2. Seguridad de Roles
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
     const currentUserRole = session.usuario?.role || "user";
 
@@ -42,7 +31,9 @@ export async function POST(request: Request) {
     }
 
     // 3. Verificar si existe el correo
+    // Usamos 'any' para simplificar el tipado de la respuesta de mysql2
     const [existing]: any = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
+    
     if (existing.length > 0) {
       return NextResponse.json({ success: false, message: "El correo ya está registrado" }, { status: 400 });
     }
@@ -56,9 +47,7 @@ export async function POST(request: Request) {
       [nombre, email, hashedPassword, roleRequest]
     );
 
-    // 6. Auto-login: Crear sesión automáticamente para el nuevo usuario
-    // NOTA: Si un admin está creando un usuario, NO deberíamos sobreescribir la sesión del admin.
-    // Solo hacemos auto-login si no hay nadie logueado.
+    // 6. Auto-login (Opcional: solo si no hay nadie logueado actualmente)
     if (!session.usuario) {
         session.usuario = {
             id: result.insertId,
@@ -78,7 +67,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error en registro:", error);
     return NextResponse.json({ success: false, message: "Error al registrar usuario" }, { status: 500 });
   }
 }
