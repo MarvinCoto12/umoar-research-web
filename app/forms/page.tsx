@@ -1,225 +1,256 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Importamos useEffect
+import { useRouter } from 'next/navigation'; // Importamos useRouter
 import React from 'react';
 import Layout from '../components/MainLayout';
 
 type Props = {
-  onSave?: (research: {
-    id: string;
-    title: string;
-    author: string;
-    career: string;
-    type: 'Institucional' | 'Catedra';
-    description?: string;
-    file?: string;
-    image?: string;
-  }) => void;
+  onSave?: (data: FormData) => void; 
 };
 
 export default function UploadForm({ onSave }: Props) {
   // --- ESTADO DEL FORMULARIO ---
-  // Aquí guardamos temporalmente lo que el usuario escribe o selecciona
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [career, setCareer] = useState('');
   const [type, setType] = useState<'Institucional' | 'Catedra'>('Institucional');
   const [description, setDescription] = useState('');
-  const [file, setFile] = useState<File | null>(null); // Guardamos el archivo PDF real
+  const [file, setFile] = useState<File | null>(null);
+  
+  const [isUploading, setIsUploading] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  
+  const router = useRouter(); // Hook de navegación
 
-  // Generador de IDs únicos (para identificar cada investigación internamente)
-  function uuidv4() {
-    return crypto.randomUUID();
-  }
+  // --- NUEVO: PROTECCIÓN DE RUTA (El Guardián) ---
+  useEffect(() => {
+    const verificarSesion = async () => {
+      try {
+        const res = await fetch("/api/check_session");
+        const data = await res.json();
+
+        // Si NO hay sesión, lo mandamos al login inmediatamente
+        if (!data.success) {
+          router.push("/login"); 
+        }
+        // Nota: Aquí no validamos rol 'admin' porque los investigadores ('user')
+        // SÍ tienen permiso de ver esta página.
+      } catch (err) {
+        console.error(err);
+        router.push("/login");
+      }
+    };
+    verificarSesion();
+  }, [router]);
 
   // --- MANEJO DE ARCHIVOS (PDF) ---
-  // Se ejecuta cuando el usuario selecciona un archivo desde su computadora
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
     
-    // Validación: Solo permitimos archivos PDF
-    if (f && f.type !== 'application/pdf') {
-      alert('Solo se aceptan archivos PDF');
-      e.target.value = ''; // Limpiamos el input si el archivo es incorrecto
-      return;
+    if (f) {
+      if (f.type !== 'application/pdf') {
+        alert('Solo se aceptan archivos PDF.');
+        e.target.value = ''; 
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        alert('El archivo es demasiado grande (Máximo 10MB).');
+        e.target.value = '';
+        return;
+      }
+      setFile(f);
+      setMessage(null);
     }
-    setFile(f); // Si es válido, lo guardamos en el estado
   }
 
   // --- QUITAR ARCHIVO ---
-  // Permite al usuario arrepentirse y quitar el PDF seleccionado antes de enviar
   function handleRemoveFile(e: React.MouseEvent) {
-    e.preventDefault();  // Evita comportamientos extraños del navegador
-    e.stopPropagation(); // Evita que al hacer clic en la X, se active el botón "Explorar" de abajo
-    
-    setFile(null); // Borramos el archivo de la memoria del estado
-    
-    // Truco visual: Limpiamos también el input invisible de HTML para poder volver a seleccionar el mismo archivo si quisiera
+    e.preventDefault(); 
+    e.stopPropagation();
+    setFile(null);
     const fileInput = document.getElementById('pdf-input') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   }
 
   // --- ENVÍO DEL FORMULARIO ---
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); // Evitamos que la página se recargue
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setMessage(null);
 
-    const id = uuidv4();
-    // Creamos una URL temporal para previsualizar el PDF (útil si quisiéramos mostrarlo antes de subir)
-    const objUrl = file ? URL.createObjectURL(file) : undefined;
-
-    // Empaquetamos todos los datos en un solo objeto "Investigación"
-    const research = {
-      id,
-      title,
-      author,
-      career,
-      type,
-      description,
-      file: objUrl,
-      // Imagen placeholder (esto se cambiaría por una subida real de imagen en el futuro)
-      image: '/mnt/data/2a77e9de-421f-4b3f-b730-fef8f595e6ad.png'
-    };
-
-    // Si el componente padre nos dio una función 'onSave', la usamos. Si no, solo mostramos en consola.
-    if (onSave) {
-        onSave(research);
-    } else {
-        console.log("Datos listos para enviar:", research);
+    if (!title || !author || !career || !file) {
+      setMessage({ text: "Por favor completa todos los campos obligatorios y selecciona un archivo.", type: 'error' });
+      return;
     }
 
-    // --- LIMPIEZA ---
-    // Dejamos el formulario en blanco para una nueva entrada
-    setTitle('');
-    setAuthor('');
-    setCareer('');
-    setDescription('');
-    setFile(null);
-    const fileInput = document.getElementById('pdf-input') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+    setIsUploading(true);
 
-    alert('Investigación agregada (Frontend demo).');
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('author', author);
+      formData.append('career', career);
+      formData.append('type', type);
+      formData.append('description', description);
+      formData.append('file', file);
+
+      // SIMULACIÓN (Aquí iría el fetch real a /api/upload)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log("Datos enviados:", Object.fromEntries(formData));
+
+      setMessage({ text: 'Investigación publicada correctamente.', type: 'success' });
+      
+      setTitle('');
+      setAuthor('');
+      setCareer('');
+      setDescription('');
+      setFile(null);
+      const fileInput = document.getElementById('pdf-input') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+
+    } catch (error) {
+      console.error(error);
+      setMessage({ text: 'Hubo un error al subir la investigación.', type: 'error' });
+    } finally {
+      setIsUploading(false);
+    }
   }
 
-  // --- INTERFAZ VISUAL ---
   return (
     <Layout>
-    <div className="bg-white text-black py-7 rounded-xl shadow-lg container mx-auto">
-      <h2 className="text-2xl font-semibold text-center mb-6 text-accent-purple">
-        Publicar nueva investigación
-      </h2>
+      <div className="bg-white text-black py-8 px-6 rounded-xl shadow-lg container mx-auto border border-gray-100">
+        <h2 className="text-3xl font-bold text-center mb-8 text-green-900">
+          Publicar Nueva Investigación
+        </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-        
-        {/* Campo: Título */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Título</label>
-          <input
-            className="p-3 rounded-md bg-gray-100 border border-black text-black outline-none focus:ring-2 focus:ring-accent-purple"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Campo: Autor */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Autor(es)</label>
-          <input
-            className="p-3 rounded-md bg-gray-100 border border-black text-black outline-none focus:ring-2 focus:ring-accent-purple"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Campo: Carrera */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Carrera</label>
-          <input
-            className="p-3 rounded-md bg-gray-100 border border-black text-black outline-none focus:ring-2 focus:ring-accent-purple"
-            value={career}
-            onChange={(e) => setCareer(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Campo: Tipo (Selector) */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Tipo</label>
-          <select
-            className="p-3 rounded-md bg-gray-100 border border-black text-black outline-none focus:ring-2 focus:ring-accent-purple"
-            value={type}
-            onChange={(e) => setType(e.target.value as 'Institucional' | 'Catedra')}
-          >
-            <option value="Institucional">Institucional</option>
-            <option value="Catedra">Catedra</option>
-          </select>
-        </div>
-
-        {/* Campo: Descripción */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Descripción (opcional)</label>
-          <textarea
-            className="p-3 rounded-md bg-gray-100 border border-gray-400 text-black h-28 resize-none outline-none focus:ring-2 focus:ring-accent-purple"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        {/* --- CAMPO ESPECIAL PARA ARCHIVOS PDF --- */}
-        <div className="flex flex-col">
-          <label className="mb-1 font-medium">Archivo PDF</label>
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
           
-          {/* 1. El input real está oculto porque es feo por defecto */}
-          <input
-            id="pdf-input"
-            type="file"
-            accept="application/pdf"
-            onChange={handleFile}
-            className="hidden" 
-          />
-          
-          {/* 2. Usamos un label personalizado como botón que activa el input oculto */}
-          <label 
-            htmlFor="pdf-input"
-            className={`p-3 rounded-md cursor-pointer flex justify-between items-center border border-gray-400 hover:border-black transition-all ${file ? 'bg-green-100' : 'bg-gray-100'}`}
-          >
-            {/* Texto dinámico: Muestra "Seleccionar" o el nombre del archivo */}
-            <span className={file ? "text-black font-medium truncate pr-2" : "text-gray-500"}>
-                {file ? `Archivo listo: ${file.name}` : "Seleccionar archivo"}
-            </span>
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Título de la Investigación <span className="text-red-500">*</span></label>
+            <input
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Ej: Impacto de la tecnología..."
+              required
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Autor(es) <span className="text-red-500">*</span></label>
+            <input
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="Ej: Juan Pérez, María López"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Carrera <span className="text-red-500">*</span></label>
+            <input
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              value={career}
+              onChange={(e) => setCareer(e.target.value)}
+              placeholder="Ej: Ingeniería en Sistemas"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Tipo de Investigación <span className="text-red-500">*</span></label>
+            <select
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              value={type}
+              onChange={(e) => setType(e.target.value as 'Institucional' | 'Catedra')}
+            >
+              <option value="Institucional">Institucional</option>
+              <option value="Catedra">Cátedra</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Descripción (opcional)</label>
+            <textarea
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black h-32 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Breve descripción del contenido..."
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 font-semibold text-gray-700">Documento PDF <span className="text-red-500">*</span></label>
             
-            <div className="flex items-center gap-3">
-                {/* Botón X para eliminar: Solo aparece si hay un archivo cargado */}
-                {file && (
-                    <button
-                        type="button"
-                        onClick={handleRemoveFile}
-                        className="text-red-500 hover:text-red-700 font-bold p-1 rounded-full hover:bg-red-100 transition-colors flex items-center justify-center w-6 h-6"
-                        title="Quitar archivo"
-                    >
-                        ✕
-                    </button>
-                )}
-                
-                {/* Botón visual "Explorar" */}
-                <span className="bg-white text-black text-sm px-3 py-1 rounded shadow-sm border border-gray-300">
-                    Explorar
+            <input
+              id="pdf-input"
+              type="file"
+              accept="application/pdf"
+              onChange={handleFile}
+              className="hidden" 
+            />
+            
+            <label 
+              htmlFor="pdf-input"
+              className={`p-4 rounded-lg cursor-pointer flex justify-between items-center border-2 border-dashed transition-all ${
+                file 
+                  ? 'bg-green-50 border-green-500' 
+                  : 'bg-gray-50 border-gray-300 hover:border-green-400 hover:bg-gray-100'
+              }`}
+            >
+              <div className="flex items-center gap-3 overflow-hidden">
+                <span className="text-2xl">{file ? '📄' : 'Empty'}</span>
+                <span className={`font-medium truncate ${file ? "text-green-800" : "text-gray-500"}`}>
+                    {file ? file.name : "Haz clic para seleccionar un archivo PDF"}
                 </span>
-            </div>
-          </label>
-        </div>
+              </div>
+              
+              <div className="flex items-center gap-3 shrink-0">
+                  {file && (
+                      <button
+                          type="button"
+                          onClick={handleRemoveFile}
+                          className="text-red-500 hover:text-red-700 bg-white p-1.5 rounded-full shadow-sm hover:shadow transition-all"
+                          title="Quitar archivo"
+                      >
+                          ✕
+                      </button>
+                  )}
+                  
+                  {!file && (
+                    <span className="bg-white text-gray-700 text-sm px-4 py-1.5 rounded shadow-sm border border-gray-200 font-medium">
+                        Explorar
+                    </span>
+                  )}
+              </div>
+            </label>
+            {file && <p className="text-xs text-green-600 mt-1 text-right">Archivo listo para subir ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>}
+          </div>
 
-        {/* Botón de Enviar */}
-        <div className="flex justify-center pt-4">
-          <button
-            type="submit"
-            className="cursor-pointer bg-accent-purple hover:bg-accent-pink transition-colors duration-300 text-black font-semibold px-6 py-3 rounded-lg shadow-lg"
-          >
-            Publicar investigación
-          </button>
-        </div>
-      </form>
-    </div>
+          {message && (
+            <div className={`p-3 rounded text-center font-medium ${
+              message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {message.text}
+            </div>
+          )}
+
+          <div className="flex justify-center pt-4">
+            <button
+              type="submit"
+              disabled={isUploading}
+              className={`
+                w-full md:w-auto px-8 py-3 rounded-lg font-bold text-white shadow-md transition-all
+                ${isUploading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-green-700 hover:bg-green-800 hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5'}
+              `}
+            >
+              {isUploading ? 'Subiendo...' : 'Publicar Investigación'}
+            </button>
+          </div>
+        </form>
+      </div>
     </Layout>
   );
 }
