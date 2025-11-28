@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1764346594409,
+    "filename": "1764346594409_venta.pdf",
+    "originalName": "venta.pdf",
+    "title": "chatgpt",
+    "author": "chatgpt",
+    "career": "computacion",
+    "type": "Institucional",
+    "description": "chatgpt la hiso",
+    "uploader": {
+      "id": 1,
+      "nombre": "Administrador General",
+      "email": "admin@umoar.edu.sv",
+      "role": "admin"
+    },
+    "createdAt": "2025-11-28T16:16:34.426Z"
+  }
+]
