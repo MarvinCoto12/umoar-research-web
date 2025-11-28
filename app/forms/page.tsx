@@ -5,7 +5,7 @@ import React from 'react';
 import Layout from '../components/MainLayout';
 
 type Props = {
-  onSave?: (data: FormData) => void; 
+  onSave?: (data: FormData) => void;
 };
 
 export default function UploadForm({ onSave }: Props) {
@@ -16,10 +16,10 @@ export default function UploadForm({ onSave }: Props) {
   const [type, setType] = useState<'Institucional' | 'Catedra'>('Institucional');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
+
   const router = useRouter(); // Hook de navegación
 
   // --- NUEVO: PROTECCIÓN DE RUTA (El Guardián) ---
@@ -31,7 +31,7 @@ export default function UploadForm({ onSave }: Props) {
 
         // Si NO hay sesión, lo mandamos al login inmediatamente
         if (!data.success) {
-          router.push("/login"); 
+          router.push("/login");
         }
         // Nota: Aquí no validamos rol 'admin' porque los investigadores ('user')
         // SÍ tienen permiso de ver esta página.
@@ -46,11 +46,11 @@ export default function UploadForm({ onSave }: Props) {
   // --- MANEJO DE ARCHIVOS (PDF) ---
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
-    
+
     if (f) {
       if (f.type !== 'application/pdf') {
         alert('Solo se aceptan archivos PDF.');
-        e.target.value = ''; 
+        e.target.value = '';
         return;
       }
       if (f.size > 10 * 1024 * 1024) {
@@ -65,7 +65,7 @@ export default function UploadForm({ onSave }: Props) {
 
   // --- QUITAR ARCHIVO ---
   function handleRemoveFile(e: React.MouseEvent) {
-    e.preventDefault(); 
+    e.preventDefault();
     e.stopPropagation();
     setFile(null);
     const fileInput = document.getElementById('pdf-input') as HTMLInputElement;
@@ -98,7 +98,7 @@ export default function UploadForm({ onSave }: Props) {
       console.log("Datos enviados:", Object.fromEntries(formData));
 
       setMessage({ text: 'Investigación publicada correctamente.', type: 'success' });
-      
+
       setTitle('');
       setAuthor('');
       setCareer('');
@@ -123,7 +123,7 @@ export default function UploadForm({ onSave }: Props) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-          
+
           <div className="flex flex-col">
             <label className="mb-2 font-semibold text-gray-700">Título de la Investigación <span className="text-red-500">*</span></label>
             <input
@@ -181,56 +181,54 @@ export default function UploadForm({ onSave }: Props) {
 
           <div className="flex flex-col">
             <label className="mb-2 font-semibold text-gray-700">Documento PDF <span className="text-red-500">*</span></label>
-            
+
             <input
               id="pdf-input"
               type="file"
               accept="application/pdf"
               onChange={handleFile}
-              className="hidden" 
+              className="hidden"
             />
-            
-            <label 
+
+            <label
               htmlFor="pdf-input"
-              className={`p-4 rounded-lg cursor-pointer flex justify-between items-center border-2 border-dashed transition-all ${
-                file 
-                  ? 'bg-green-50 border-green-500' 
+              className={`p-4 rounded-lg cursor-pointer flex justify-between items-center border-2 border-dashed transition-all ${file
+                  ? 'bg-green-50 border-green-500'
                   : 'bg-gray-50 border-gray-300 hover:border-green-400 hover:bg-gray-100'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3 overflow-hidden">
                 <span className="text-2xl">{file ? '📄' : 'Empty'}</span>
                 <span className={`font-medium truncate ${file ? "text-green-800" : "text-gray-500"}`}>
-                    {file ? file.name : "Haz clic para seleccionar un archivo PDF"}
+                  {file ? file.name : "Haz clic para seleccionar un archivo PDF"}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-3 shrink-0">
-                  {file && (
-                      <button
-                          type="button"
-                          onClick={handleRemoveFile}
-                          className="text-red-500 hover:text-red-700 bg-white p-1.5 rounded-full shadow-sm hover:shadow transition-all"
-                          title="Quitar archivo"
-                      >
-                          ✕
-                      </button>
-                  )}
-                  
-                  {!file && (
-                    <span className="bg-white text-gray-700 text-sm px-4 py-1.5 rounded shadow-sm border border-gray-200 font-medium">
-                        Explorar
-                    </span>
-                  )}
+                {file && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="text-red-500 hover:text-red-700 bg-white p-1.5 rounded-full shadow-sm hover:shadow transition-all"
+                    title="Quitar archivo"
+                  >
+                    ✕
+                  </button>
+                )}
+
+                {!file && (
+                  <span className="bg-white text-gray-700 text-sm px-4 py-1.5 rounded shadow-sm border border-gray-200 font-medium">
+                    Explorar
+                  </span>
+                )}
               </div>
             </label>
             {file && <p className="text-xs text-green-600 mt-1 text-right">Archivo listo para subir ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>}
           </div>
 
           {message && (
-            <div className={`p-3 rounded text-center font-medium ${
-              message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
+            <div className={`p-3 rounded text-center font-medium ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
               {message.text}
             </div>
           )}
@@ -241,8 +239,8 @@ export default function UploadForm({ onSave }: Props) {
               disabled={isUploading}
               className={`
                 w-full md:w-auto px-8 py-3 rounded-lg font-bold text-white shadow-md transition-all
-                ${isUploading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
+                ${isUploading
+                  ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-green-700 hover:bg-green-800 hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5'}
               `}
             >

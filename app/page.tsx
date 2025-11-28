@@ -28,7 +28,7 @@ export default function PublicHome() {
       <div className="p-6">
         <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
           Bienvenido a la plataforma de Proyectos de Investigación de Monseñor Oscar Arnulfo Romero
-        </h1> 
+        </h1>
 
         {/* --- ÁREA DE CONTENIDO PÚBLICO --- */}
         <div className="mt-8">
@@ -38,17 +38,29 @@ export default function PublicHome() {
           </p>
 
           {/* Botón para que el personal administrativo inicie sesión */}
-          {!isLoggedIn && (
-            <div className="mt-10 pt-10 border-t border-gray-200">
-              <p className="text-sm text-gray-500 mb-2">¿Eres investigador o administrador?</p>
-              <Link 
-                href="/login" 
-                className="inline-block bg-green-900 text-white px-4 py-2 rounded hover:bg-green-800 transition-colors text-sm font-medium"
-              >
-                Ingresar al Sistema
-              </Link>
-            </div>
-          )}
+          <div className="mt-10 pt-10 border-t border-gray-200">
+            {!isLoggedIn ? (
+              <>
+                <p className="text-sm text-gray-500 mb-2">¿Eres investigador o administrador?</p>
+                <Link
+                  href="/login"
+                  className="inline-block bg-green-900 text-white px-4 py-2 rounded hover:bg-green-800 transition-colors text-sm font-medium"
+                >
+                  Ingresar al Sistema
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-green-700 mb-2">Sesión activa</p>
+                <Link
+                  href="/home"
+                  className="inline-block bg-green-700 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors text-sm font-bold"
+                >
+                  Ir a mi Panel de Control →
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Layout>
