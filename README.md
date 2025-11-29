@@ -8,10 +8,13 @@ Debes copiar y pegar el siguiente contenido, ajustando los valores si tu configu
 
 # Configuración de Base de Datos (MySQL)
 DB_HOST=localhost
+
 DB_USER=root
 # Si tu MySQL tiene contraseña, la pones aquí en "DB_PASSWORD" despues de "=". Si no, lo dejas vacío.
 DB_PASSWORD=
+
 DB_NAME=umoar_db
+
 DB_PORT=3306
 
 # Configuración del Servidor Next.js

@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       [nombre, email, hashedPassword, roleRequest]
     );
 
-    // 6. Auto-login (Opcional: solo si no hay nadie logueado actualmente)
+    /*
     if (!session.usuario) {
         session.usuario = {
             id: result.insertId,
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
             role: roleRequest,
         };
         await session.save();
-    }
+    } */
 
     return NextResponse.json({
       success: true,

@@ -35,7 +35,6 @@ export default function Navbar() {
     try {
       await fetch("/api/logout");
 
-      // CAMBIO CLAVE: Usamos window.location.href en lugar de router.push
       // Esto fuerza una recarga de la página, limpiando el estado de la portada pública
       window.location.href = "/";
 
@@ -65,8 +64,11 @@ export default function Navbar() {
       <div className={`gap-6 md:flex 
         ${open ? 'flex flex-col absolute top-full left-0 w-full bg-green-900 px-4 py-4 md:static shadow-lg md:shadow-none' : 'hidden'}
       `}>
-        <Link href="/" className="text-white hover:text-green-200 hover:underline
-        transition-colors">Inicio</Link>
+        {isLoggedIn && (
+        <Link href="/" className="text-white hover:text-green-200 hover:underlinetransition-colors">
+          Inicio
+        </Link>
+        )}
 
         {isLoggedIn && (
           <Link href="/forms" className="text-white hover:text-green-200 hover:underline transition-colors">

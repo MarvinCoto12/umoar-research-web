@@ -65,39 +65,20 @@ export default function RegisterPage() {
     router.push("/");
   };
 
-  // --- 2. DISEÑO VISUAL (Estilos Inline) ---
+  // Contenido visual
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #14532d, #f0fdf4)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 420,
-          background: "#fff",
-          padding: 36,
-          borderRadius: 12,
-          boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
-        }}
-      >
-        <h2 style={{ margin: 0, marginBottom: 8, color: "#14532d", textAlign: "center", fontSize: "1.5rem", fontWeight: "bold" }}>
+    <div className="min-h-screen bg-linear-to-br from-green-900 to-green-50 flex justify-center items-center p-5">
+      <div className="w-full max-w-md bg-white p-9 rounded-xl shadow-2xl">
+        <h2 className="text-green-900 text-center text-2xl font-bold mb-2">
           Registrar Usuarios
         </h2>
-        <p style={{ marginTop: 0, marginBottom: 24, color: "#6b7280", textAlign: "center", fontSize: "0.9rem" }}>
+        <p className="text-gray-500 text-center text-sm mb-6">
           Panel administrativo para crear nuevas cuentas.
         </p>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Nombre */}
-          <label style={{ fontSize: 13, color: "#333", fontWeight: 600 }}>
+          <label className="text-sm text-gray-800 font-semibold">
             Nombre completo
             <input
               type="text"
@@ -105,42 +86,25 @@ export default function RegisterPage() {
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej. María Pérez"
               required
-              style={{
-                width: "100%",
-                marginTop: 6,
-                padding: "10px 12px",
-                fontSize: 15,
-                borderRadius: 8,
-                border: "1px solid #ddd",
-                outline: "none",
-                transition: "border 0.2s"
-              }}
+              className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all"
             />
           </label>
 
           {/* Email */}
-          <label style={{ fontSize: 13, color: "#333", fontWeight: 600 }}>
-            Correo @umoar.edu.sv
+          <label className="text-sm text-gray-800 font-semibold">
+            Correo@umoar.edu.sv
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="usuario@umoar.edu.sv"
               required
-              style={{
-                width: "100%",
-                marginTop: 6,
-                padding: "10px 12px",
-                fontSize: 15,
-                borderRadius: 8,
-                border: "1px solid #ddd",
-                outline: "none",
-              }}
+              className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all"
             />
           </label>
 
           {/* Contraseña */}
-          <label style={{ fontSize: 13, color: "#333", fontWeight: 600 }}>
+          <label className="text-sm text-gray-800 font-semibold">
             Contraseña
             <input
               type="password"
@@ -148,92 +112,51 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
               required
-              style={{
-                width: "100%",
-                marginTop: 6,
-                padding: "10px 12px",
-                fontSize: 15,
-                borderRadius: 8,
-                border: "1px solid #ddd",
-                outline: "none",
-              }}
+              className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all"
             />
           </label>
 
           {/* Rol Selector */}
-          <label style={{ fontSize: 13, color: "#333", fontWeight: 600 }}>
+          <label className="text-sm text-gray-800 font-semibold">
             Tipo de Usuario
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              style={{
-                width: "100%",
-                marginTop: 6,
-                padding: "10px 12px",
-                fontSize: 15,
-                borderRadius: 8,
-                border: "1px solid #ddd",
-                outline: "none",
-                backgroundColor: "white"
-              }}
+              className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 bg-white"
             >
               <option value="user">Investigador</option>
               <option value="admin">Administrador</option>
             </select>
           </label>
 
-          {/* Botón Registrar */}
+          {/* Botón para registrar */}
           <button
             type="submit"
             disabled={submitting}
-            style={{
-              marginTop: 10,
-              padding: "12px 14px",
-              borderRadius: 8,
-              border: "none",
-              background: submitting ? "#86efac" : "#15803d",
-              color: "#fff",
-              fontSize: 15,
-              fontWeight: "bold",
-              cursor: submitting ? "default" : "pointer",
-              transition: "background 0.2s"
-            }}
+            className={`cursor-pointer mt-4 w-full py-3 rounded-lg font-bold text-white transition-colors shadow-md ${submitting ? "bg-green-300 cursor-not-allowed" : "bg-green-700 hover:bg-green-800"
+              }`}
           >
             {submitting ? "Registrando..." : "Registrar Usuario"}
           </button>
 
-          {/* Botón Volver (Gris suave para diferenciar) */}
+          {/* Botón para volver a la pag principal */}
           <button
             type="button"
             onClick={handleGoHome}
-            style={{
-              padding: "10px 14px",
-              borderRadius: 8,
-              border: "none",
-              background: "#f1f5f9",
-              color: "#475569",
-              fontSize: 14,
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "background 0.2s"
-            }}
+            className="cursor-pointer py-2 rounded-lg bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200 transition-colors text-sm"
           >
-            Volver a la página pública
+            Volver a la página principal
           </button>
-
         </form>
 
         {/* Mensajes de Feedback */}
         {mensaje && (
-          <div style={{
-            marginTop: 18,
-            padding: "10px",
-            borderRadius: 6,
-            textAlign: "center",
-            fontSize: 14,
-            backgroundColor: mensaje.includes("Éxito") ? "#dcfce7" : "#fee2e2",
-            color: mensaje.includes("Éxito") ? "#166534" : "#991b1b"
-          }}>
+          <div
+            className={`mt-6 p-3 rounded-lg text-center text-sm font-medium ${mensaje.includes("Éxito")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+              }`}
+          >
             {mensaje}
           </div>
         )}
