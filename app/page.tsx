@@ -12,14 +12,14 @@ type Publication = {
   description?: string;
   file?: string;
   createdAt?: string;
+  originalName?: string;
 };
 
 export default function PublicHome() {
-  // Estado para saber si hay sesión activa
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [publications, setPublications] = useState<Publication[]>([]);
+  const [selectedPub, setSelectedPub] = useState<Publication | null>(null); // Estado para la publicación seleccionada (Modal)
 
-  // Verificamos si hay sesión al cargar la página
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -34,7 +34,6 @@ export default function PublicHome() {
     };
     checkSession();
 
-    // Obtener publicaciones
     const fetchPublications = async () => {
       try {
         const r = await fetch('/api/uploads');
@@ -42,7 +41,6 @@ export default function PublicHome() {
         if (json.success && Array.isArray(json.list)) {
           setPublications(json.list);
         } else if (Array.isArray(json)) {
-          // por compatibilidad, si la API devuelve directamente un array
           setPublications(json as Publication[]);
         }
       } catch (err) {
@@ -52,68 +50,178 @@ export default function PublicHome() {
     fetchPublications();
   }, []);
 
+  // Función para cerrar el modal
+  const closeModal = () => setSelectedPub(null);
+
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-          Bienvenido a la plataforma de Proyectos de Investigación de Monseñor Oscar Arnulfo Romero
-        </h1>
-
-        {/* --- ÁREA DE CONTENIDO PÚBLICO --- */}
-        <div className="mt-8">
-          <p className="text-gray-600 mb-6">
+        <header className="mb-10 text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-black mb-2">
+            Bienvenido a la plataforma de Proyectos de Investigación de Monseñor Oscar Arnulfo Romero
+          </h1>
+          <p className="text-gray-600 text-lg">
             Aquí podrás encontrar las investigaciones publicadas por nuestra institución.
           </p>
+        </header>
 
-          <div className="grid gap-4">
-            {publications.length === 0 ? (
-              <p className="text-sm text-gray-500">No hay publicaciones aún.</p>
-            ) : (
-              publications.map((p) => (
-                <div key={p.id} className="p-4 border rounded-md bg-white shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-lg font-semibold text-black">{p.title}</h3>
-                      <p className="text-sm text-gray-600">{p.author}</p>
-                      {p.career && <p className="text-xs text-gray-500">{p.career} • {p.type}</p>}
+        {/* GRID DE TARJETAS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {publications.length === 0 ? (
+            <div className="col-span-full text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+              <p className="text-gray-500 text-lg">No hay publicaciones disponibles por el momento.</p>
+            </div>
+          ) : (
+            publications.map((p) => (
+              <article
+                key={p.id}
+                onClick={() => setSelectedPub(p)}
+                className="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col h-full overflow-hidden hover:-translate-y-1"
+              >
+                {/* Decoración superior de la tarjeta */}
+                <div className="h-3 bg-linear-to-r from-green-700 to-green-500 w-full"></div>
+
+                <div className="p-6 flex flex-col grow">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                      {p.type || 'General'}
+                    </span>
+                    <span className="text-gray-400 text-xs">
+                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : ''}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-green-700 transition-colors leading-tight">
+                    {p.title}
+                  </h3>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold">
+                      {p.author.charAt(0).toUpperCase()}
                     </div>
-                    {p.file && (
-                      <a href={p.file} target="_blank" rel="noreferrer" className="text-sm bg-green-700 text-white px-3 py-1 rounded">
-                        Ver PDF
+                    <p className="text-sm text-gray-600 font-medium truncate">
+                      {p.author}
+                    </p>
+                  </div>
+
+                  {p.description && (
+                    <p className="text-sm text-gray-500 line-clamp-3 mb-6 grow">
+                      {p.description}
+                    </p>
+                  )}
+
+                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
+                    <span className="text-gray-500 font-medium">{p.career}</span>
+                    <span className="text-green-700 font-bold flex items-center gap-1 group-hover:underline">
+                      Ver detalles
+                      <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+
+        {/* PANTALLA COMPLETA AL DAR CLICK */}
+        {selectedPub && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm transition-all" onClick={closeModal}>
+            <div
+              className="bg-white rounded-2xl w-full max-w-6xl h-[90vh] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-white z-10">
+                <div className="pr-8">
+                  <h2 className="text-2xl font-bold text-gray-900 line-clamp-1" title={selectedPub.title}>{selectedPub.title}</h2>
+                  <p className="text-sm text-gray-500">Publicado por {selectedPub.author}</p>
+                </div>
+                <button
+                  onClick={closeModal}
+                  className="cursor-pointer bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 p-2 rounded-full transition-all"
+                  title="Cerrar"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Cuerpo */}
+              <div className="grow flex flex-col lg:flex-row overflow-hidden bg-gray-50">
+
+                {/* Panel Izquierdo: Información */}
+                <div className="w-full lg:w-1/3 p-6 lg:p-8 overflow-y-auto bg-white border-r border-gray-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Descripción Completa</h4>
+                      <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
+                        {selectedPub.description || "No hay una descripción detallada para este documento."}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-xl space-y-3 border border-gray-100">
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ficha Técnica</h4>
+                      <div className="grid grid-cols-1 gap-2 text-sm">
+                        <div className="flex justify-between"><span className="text-gray-500">Carrera:</span> <span className="font-medium text-gray-900 text-right">{selectedPub.career}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Tipo:</span> <span className="font-medium text-gray-900 text-right">{selectedPub.type}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Fecha:</span> <span className="font-medium text-gray-900 text-right">{new Date(selectedPub.createdAt || Date.now()).toLocaleDateString()}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Archivo:</span> <span className="font-medium text-gray-900 text-right truncate max-w-[150px]">{selectedPub.originalName}</span></div>
+                      </div>
+                    </div>
+
+                    {selectedPub.file && (
+                      <a
+                        href={selectedPub.file}
+                        download
+                        className="flex items-center justify-center w-full gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-green-700/20 active:scale-95"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Descargar PDF
                       </a>
                     )}
                   </div>
-                  {p.description && <p className="mt-2 text-sm text-gray-700">{p.description}</p>}
-                  {p.createdAt && <p className="mt-2 text-xs text-gray-400">Publicado: {new Date(p.createdAt).toLocaleString()}</p>}
                 </div>
-              ))
-            )}
-          </div>
 
-          {/* Botón para que el personal administrativo inicie sesión */}
-          <div className="mt-10 pt-10 border-t border-gray-200">
-            {!isLoggedIn ? (
-              <>
-                <p className="text-sm text-gray-500 mb-2">¿Eres investigador o administrador?</p>
-                <Link
-                  href="/login"
-                  className="inline-block bg-green-900 text-white px-4 py-2 rounded hover:bg-green-800 transition-colors text-sm font-medium"
-                >
-                  Ingresar al Sistema
-                </Link>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-green-700 mb-2">Sesión activa</p>
-                <Link
-                  href="/home"
-                  className="inline-block bg-green-700 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors text-sm font-bold"
-                >
-                  Ir a mi Panel de Control →
-                </Link>
-              </>
-            )}
+                {/* Panel Derecho: Visor PDF */}
+                <div className="w-full lg:w-2/3 bg-gray-200 relative">
+                  {selectedPub.file ? (
+                    <iframe
+                      src={`${selectedPub.file}#toolbar=0&view=FitH`}
+                      className="w-full h-full absolute inset-0"
+                      title="Vista previa del PDF"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4">
+                      <svg className="w-16 h-16 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" /></svg>
+                      <p>Vista previa no disponible</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* FOOTER DE ACCESO */}
+        <div className="mt-16 border-t border-gray-200 pt-8 flex justify-center">
+          {!isLoggedIn ? (
+            <Link
+              href="/login"
+              className="text-gray-400 hover:text-green-700 text-sm font-medium transition-colors flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-50"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              Acceso Administrativo
+            </Link>
+          ) : (
+            <Link
+              href="/home"
+              className="inline-flex items-center gap-2 bg-green-50 text-green-800 px-6 py-3 rounded-full hover:bg-green-100 transition-all text-sm font-bold border border-green-200 shadow-sm"
+            >
+              Ir a mi Panel de Control <span className="text-lg">→</span>
+            </Link>
+          )}
         </div>
       </div>
     </Layout>
