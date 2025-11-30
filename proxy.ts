@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Proteger rutas privadas (Requieren login)
-  if (pathname.startsWith("/home") || pathname.startsWith("/forms")) {
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/forms")) {
     if (!session.usuario) {
       // Si no hay usuario, redirigir a login
       return NextResponse.redirect(new URL("/login", request.url));
@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
     }
     if (session.usuario.role !== "admin") {
       // Si está logueado pero no es admin, mandarlo al home
-      return NextResponse.redirect(new URL("/home", request.url));
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
@@ -34,5 +34,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Esto es para definir en qué rutas se ejecuta el proxy
-  matcher: ["/home/:path*", "/forms/:path*", "/register/:path*"],
+  matcher: ["/dashboard/:path*", "/forms/:path*", "/register/:path*"],
 };

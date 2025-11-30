@@ -3,7 +3,7 @@ import { RowDataPacket } from 'mysql2';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { sessionOptions, SessionData } from '@/lib/session';
-import HomeClient from './components/HomeClient'; 
+import HomeClient from './HomeClient'; 
 import { Publication } from '@/types'; 
 
 export default async function PublicHome() {

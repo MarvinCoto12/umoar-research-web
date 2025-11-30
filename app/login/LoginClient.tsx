@@ -26,7 +26,7 @@ export default function LoginClient() {
             if (res.ok && data.success) {
                 // ÉXITO: Forzamos la navegación para que el Router de Next.js refresque el estado
                 router.refresh();
-                router.push("/home");
+                router.push("/dashboard");
             } else {
                 setMensaje(data.error || "Usuario o contraseña incorrectos");
                 setIsLoading(false); // Solo dejamos de cargar si hubo error

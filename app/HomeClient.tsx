@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useState } from 'react';
-import Layout from './MainLayout';
+import Layout from './components/MainLayout';
 import { User, Publication } from '@/types';
 
 
@@ -205,7 +205,7 @@ export default function HomeClient({ publications, user }: Props) {
                         </Link>
                     ) : (
                         <Link
-                            href="/home"
+                            href="/dashboard"
                             className="inline-flex items-center gap-2 bg-green-50 text-green-800 px-6 py-3 rounded-full hover:bg-green-100 transition-all text-sm font-bold border border-green-200 shadow-sm"
                         >
                             Ir a mi Panel de Control <span className="text-lg">→</span>

@@ -10,7 +10,7 @@ export default async function LoginPage() {
   // Si ya está logueado, lo mandamos a /home directo.
   // Esto evita que vea el formulario de login innecesariamente.
   if (session.usuario) {
-    redirect("/home");
+    redirect("/dashboard");
   }
 
   return <LoginClient />;
