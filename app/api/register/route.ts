@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; 
+import { pool } from "@/lib/db";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "@/lib/session";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     const password = body.password;
     const roleRequest = body.role || "user";
 
-    // 1. Validaciones
+    // Validaciones
     if (!nombre || !email || !password) {
       return NextResponse.json({ success: false, message: "Todos los campos son obligatorios" }, { status: 400 });
     }
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "El correo debe ser @umoar.edu.sv" }, { status: 400 });
     }
 
-    // 2. Seguridad de Roles
+    // Seguridad de Roles
     const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
     const currentUserRole = session.usuario?.role || "user";
 
@@ -31,32 +32,23 @@ export async function POST(request: Request) {
     }
 
     // 3. Verificar si existe el correo
-    // Usamos 'any' para simplificar el tipado de la respuesta de mysql2
-    const [existing]: any = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
+    const [existing] = await pool.query<RowDataPacket[]>(
+      "SELECT id FROM users WHERE email = ?", 
+      [email]
+    );
     
     if (existing.length > 0) {
       return NextResponse.json({ success: false, message: "El correo ya está registrado" }, { status: 400 });
     }
 
-    // 4. Hash del password
+    // Hash del password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. Insertar en DB
-    const [result]: any = await pool.query(
+    // Insertar en DB
+    const [result] = await pool.query<ResultSetHeader>(
       "INSERT INTO users (nombre_completo, email, password, role, created_at) VALUES (?, ?, ?, ?, NOW())",
       [nombre, email, hashedPassword, roleRequest]
     );
-
-    /*
-    if (!session.usuario) {
-        session.usuario = {
-            id: result.insertId,
-            nombre: nombre,
-            email: email,
-            role: roleRequest,
-        };
-        await session.save();
-    } */
 
     return NextResponse.json({
       success: true,
