@@ -34,7 +34,7 @@ export default function Navbar({ user }: Props) {
             <span>
               UMOAR
             </span>
-            
+
             {isLoggedIn && (
               <span className="text-xs bg-green-700 text-green-100 px-2 py-1 rounded uppercase tracking-wider font-normal">
                 Intranet
