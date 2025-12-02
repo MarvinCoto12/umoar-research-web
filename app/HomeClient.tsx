@@ -34,22 +34,21 @@ export default function HomeClient({ publications, user }: Props) {
 
                 <div>
                     {/*Implementando la barra de busqueda*/}
-                    <div className="mb-8">
-                        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-                            {/* Contenedor con borde gris oscuro y fondo verde claro */}
-                            <div className="flex items-center w-full rounded-full border-[3px] border-gray-500 bg-green-50 px-6 py-2">
-                                {/* Input sin bordes internos */}
+                    <div className="mb-8 flex justify-center">
+                        <div style={{ maxWidth: "350px", margin: "0 auto" }}>
+                            <div className="flex items-center w-full rounded-full border-[3px] border-gray-700 bg-green-50 px-4 transition-colors duration-200 focus-within:border-gray-500">
                                 <input
                                     type="text"
-                                    placeholder="Buscar publicaciones..."
-                                    className="flex-grow bg-transparent text-gray-100 px-2 py-2 text-lg focus:outline-none placeholder-gray-500 border-0"
-                                    style={{ border: 'none', outline: 'none' }}
+                                    maxLength={30}
+                                    placeholder="Buscar investigaciones..."
+                                    className="grow bg-transparent text-gray-700! px-2 py-2 text-lg placeholder-gray-500 border-0! outline-none! ring-0! shadow-none!"
+                                    style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
                                 />
-                                {/* Separador vertical */}
-                                <div className="h-8 w-[2px] bg-gray-400 mx-3"></div>
-                                {/* Lupa dentro del mismo contenedor */}
+
+                                <div className="h-8 w-2px bg-gray-400 mx-3"></div>
+                                {/*Lupa dentro del mismo contenedor verde*/}
                                 <svg
-                                    className="w-6 h-6 text-gray-600 cursor-pointer flex-shrink-0"
+                                    className="w-6 h-6 text-gray-600 cursor-pointer shrink-0"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
