@@ -32,6 +32,41 @@ export default function HomeClient({ publications, user }: Props) {
                     </p>
                 </header>
 
+                <div>
+                    {/*Implementando la barra de busqueda*/}
+                    <div className="mb-8">
+                        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+                            {/* Contenedor con borde gris oscuro y fondo verde claro */}
+                            <div className="flex items-center w-full rounded-full border-[3px] border-gray-500 bg-green-50 px-6 py-2">
+                                {/* Input sin bordes internos */}
+                                <input
+                                    type="text"
+                                    placeholder="Buscar publicaciones..."
+                                    className="flex-grow bg-transparent text-gray-100 px-2 py-2 text-lg focus:outline-none placeholder-gray-500 border-0"
+                                    style={{ border: 'none', outline: 'none' }}
+                                />
+                                {/* Separador vertical */}
+                                <div className="h-8 w-[2px] bg-gray-400 mx-3"></div>
+                                {/* Lupa dentro del mismo contenedor */}
+                                <svg
+                                    className="w-6 h-6 text-gray-600 cursor-pointer flex-shrink-0"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <circle cx="11" cy="11" r="7" strokeWidth="2.5" />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2.5}
+                                        d="M21 21l-4.35-4.35"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* GRID DE TARJETAS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {publications.length === 0 ? (
@@ -104,10 +139,10 @@ export default function HomeClient({ publications, user }: Props) {
                                 <div className="pr-8">
                                     <h2 className="text-2xl font-bold text-gray-900 line-clamp-1" title={selectedPub.title}>{selectedPub.title}</h2>
                                     <p className="text-sm text-gray-500">
-                                        Publicado por 
-                                    {selectedPub.author}</p>
+                                        Publicado por
+                                        {selectedPub.author}</p>
                                 </div>
-                                
+
                                 <button
                                     onClick={closeModal}
                                     className="cursor-pointer bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 p-2 rounded-full transition-all"
@@ -130,7 +165,7 @@ export default function HomeClient({ publications, user }: Props) {
                                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                                                 Descripción Completa
                                             </h4>
-                                            
+
                                             <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
                                                 {selectedPub.description || "No hay una descripción detallada para este documento."}
                                             </p>
@@ -140,20 +175,20 @@ export default function HomeClient({ publications, user }: Props) {
                                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                                                 Ficha Técnica
                                             </h4>
-                                            
+
                                             <div className="grid grid-cols-1 gap-2 text-sm">
                                                 <div className="flex justify-between"><span className="text-gray-500">
                                                     Carrera:
                                                 </span> <span className="font-medium text-gray-900 text-right">{selectedPub.career}</span></div>
-                                                
+
                                                 <div className="flex justify-between"><span className="text-gray-500">
                                                     Tipo:
                                                 </span> <span className="font-medium text-gray-900 text-right">{selectedPub.type}</span></div>
-                                                
+
                                                 <div className="flex justify-between"><span className="text-gray-500">
                                                     Fecha:
-                                                </span> <span className="font-medium text-gray-900 text-right">{new Date(selectedPub.createdAt || Date.now()).toLocaleDateString()}</span></div>
-                                                
+                                                </span> <span className="font-medium text-gray-900 text-right">{selectedPub.createdAt ? new Date(selectedPub.createdAt).toLocaleDateString() : 'N/A'}</span></div>
+
                                                 <div className="flex justify-between"><span className="text-gray-500">
                                                     Archivo:
                                                 </span> <span className="font-medium text-gray-900 text-right truncate max-w-[150px]">{selectedPub.originalName}</span></div>
