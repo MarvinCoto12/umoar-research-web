@@ -1,9 +1,8 @@
 "use client";
-import Link from 'next/link';
 import { useState } from 'react';
 import Layout from './components/MainLayout';
-import { User, Publication } from '@/types';
-
+import HeroSlider from './components/HeroSlider';
+import { Publication, User } from '@/types';
 
 type Props = {
     publications: Publication[];
@@ -13,21 +12,22 @@ type Props = {
 export default function HomeClient({ publications, user }: Props) {
     const [selectedPub, setSelectedPub] = useState<Publication | null>(null);
 
-    // Calculamos el estado de sesión basado en el usuario recibido
-    const isLoggedIn = !!user;
-
     // Función para cerrar el modal
     const closeModal = () => setSelectedPub(null);
 
     return (
-        // Pasamos el usuario al Layout para que el Navbar funcione
         <Layout user={user}>
             <div className="p-6">
-                <header className="mb-10 text-center">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-black mb-2">
+
+                {/* SLIDER (Componente)*/}
+                <HeroSlider />
+
+                {/* HEADER DE BIENVENIDA */}
+                <header className="mb-6 text-center">
+                    <h1 className="text-2xl md:text-4xl font-extrabold text-black mb-2">
                         Bienvenido a la plataforma de Proyectos de Investigación de Monseñor Oscar Arnulfo Romero
                     </h1>
-                    <p className="text-gray-600 text-lg">
+                    <p className="mt-4 text-gray-600 text-lg">
                         Aquí podrás encontrar las investigaciones publicadas por nuestra institución.
                     </p>
                 </header>
@@ -70,7 +70,7 @@ export default function HomeClient({ publications, user }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {publications.length === 0 ? (
                         <div className="col-span-full text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500 text-lg">
+                            <p className="text-gray-500 text-base sm:text-lg">
                                 No hay publicaciones disponibles por el momento.
                             </p>
                         </div>
@@ -81,7 +81,7 @@ export default function HomeClient({ publications, user }: Props) {
                                 onClick={() => setSelectedPub(p)}
                                 className="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col h-full overflow-hidden hover:-translate-y-1"
                             >
-                                {/* Decoración superior de la tarjeta */}
+                                {/* Decoración superior */}
                                 <div className="h-3 bg-linear-to-r from-green-700 to-green-500 w-full"></div>
 
                                 <div className="p-6 flex flex-col grow">
@@ -126,7 +126,7 @@ export default function HomeClient({ publications, user }: Props) {
                     )}
                 </div>
 
-                {/* PANTALLA COMPLETA AL DAR CLICK */}
+                {/* MODAL DE DETALLE (Pantalla Completa) */}
                 {selectedPub && (
                     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm transition-all" onClick={closeModal}>
                         <div
@@ -139,9 +139,9 @@ export default function HomeClient({ publications, user }: Props) {
                                     <h2 className="text-2xl font-bold text-gray-900 line-clamp-1" title={selectedPub.title}>{selectedPub.title}</h2>
                                     <p className="text-sm text-gray-500">
                                         Publicado por
-                                        {selectedPub.author}</p>
+                                        {selectedPub.author}
+                                    </p>
                                 </div>
-
                                 <button
                                     onClick={closeModal}
                                     className="cursor-pointer bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 p-2 rounded-full transition-all"
@@ -155,42 +155,25 @@ export default function HomeClient({ publications, user }: Props) {
 
                             {/* Cuerpo Modal */}
                             <div className="grow flex flex-col lg:flex-row overflow-hidden bg-gray-50">
-
                                 {/* Panel Izquierdo: Información */}
-                                <div className="w-full lg:w-1/3 p-6 lg:p-8 overflow-y-auto bg-white border-r border-gray-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
-
+                                <div className="w-full lg:w-1/3 p-6 lg:p-8 overflow-y-auto bg-white border-r border-gray-200 shadow-sm z-10">
                                     <div className="space-y-6">
                                         <div>
                                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                                                 Descripción Completa
                                             </h4>
-
                                             <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
                                                 {selectedPub.description || "No hay una descripción detallada para este documento."}
                                             </p>
                                         </div>
 
                                         <div className="bg-gray-50 p-4 rounded-xl space-y-3 border border-gray-100">
-                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                                                Ficha Técnica
-                                            </h4>
-
+                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ficha Técnica</h4>
                                             <div className="grid grid-cols-1 gap-2 text-sm">
-                                                <div className="flex justify-between"><span className="text-gray-500">
-                                                    Carrera:
-                                                </span> <span className="font-medium text-gray-900 text-right">{selectedPub.career}</span></div>
-
-                                                <div className="flex justify-between"><span className="text-gray-500">
-                                                    Tipo:
-                                                </span> <span className="font-medium text-gray-900 text-right">{selectedPub.type}</span></div>
-
-                                                <div className="flex justify-between"><span className="text-gray-500">
-                                                    Fecha:
-                                                </span> <span className="font-medium text-gray-900 text-right">{selectedPub.createdAt ? new Date(selectedPub.createdAt).toLocaleDateString() : 'N/A'}</span></div>
-
-                                                <div className="flex justify-between"><span className="text-gray-500">
-                                                    Archivo:
-                                                </span> <span className="font-medium text-gray-900 text-right truncate max-w-[150px]">{selectedPub.originalName}</span></div>
+                                                <div className="flex justify-between"><span className="text-gray-500">Carrera:</span> <span className="font-medium text-gray-900 text-right">{selectedPub.career}</span></div>
+                                                <div className="flex justify-between"><span className="text-gray-500">Tipo:</span> <span className="font-medium text-gray-900 text-right">{selectedPub.type}</span></div>
+                                                <div className="flex justify-between"><span className="text-gray-500">Fecha:</span> <span className="font-medium text-gray-900 text-right">{selectedPub.createdAt ? new Date(selectedPub.createdAt).toLocaleDateString() : 'N/A'}</span></div>
+                                                <div className="flex justify-between"><span className="text-gray-500">Archivo:</span> <span className="font-medium text-gray-900 text-right truncate max-w-[150px]">{selectedPub.originalName}</span></div>
                                             </div>
                                         </div>
 
@@ -226,26 +209,6 @@ export default function HomeClient({ publications, user }: Props) {
                         </div>
                     </div>
                 )}
-
-                {/* FOOTER DE ACCESO */}
-                <div className="mt-16 border-t border-gray-200 pt-8 flex justify-center">
-                    {!isLoggedIn ? (
-                        <Link
-                            href="/login"
-                            className="text-gray-400 hover:text-green-700 text-sm font-medium transition-colors flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-50"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                            Acceso Administrativo
-                        </Link>
-                    ) : (
-                        <Link
-                            href="/dashboard"
-                            className="inline-flex items-center gap-2 bg-green-50 text-green-800 px-6 py-3 rounded-full hover:bg-green-100 transition-all text-sm font-bold border border-green-200 shadow-sm"
-                        >
-                            Ir a mi Panel de Control <span className="text-lg">→</span>
-                        </Link>
-                    )}
-                </div>
             </div>
         </Layout>
     );
