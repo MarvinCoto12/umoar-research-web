@@ -30,26 +30,25 @@ export default function Navbar({ user }: Props) {
   // Configuración de enlaces
   const navLinks = [
     {
-      label: 'Inicio',
-      href: '/',
+      label: 'Inicio', href: '/',
       // Mostrar Inicio si estamos en /forms o /dashboard
       show: pathname === '/forms' || pathname === '/dashboard'
     },
+
     {
-      label: 'Publicar',
-      href: '/forms',
+      label: 'Publicar', href: '/forms',
       // Siempre mostrar
       show: true
     },
+
     {
-      label: 'Panel de control',
-      href: '/dashboard',
+      label: 'Panel de control', href: '/dashboard',
       // Siempre mostrar 
       show: true
     },
+
     {
-      label: 'Registrar usuarios',
-      href: '/register',
+      label: 'Registrar usuarios', href: '/register',
       show: userRole === 'admin'
     },
   ];
@@ -59,7 +58,7 @@ export default function Navbar({ user }: Props) {
       {/* NAVBAR FIJA */}
       <nav className="fixed top-0 left-0 w-full bg-green-900 text-white px-4 py-3 flex justify-between items-center z-50 shadow-md">
 
-        {/* IZQUIERDA: LOGO */}
+        {/* SECCIÓN COMÚN: LOGO (Izquierda)                          */}
         <div>
           <Link href="/" onClick={closeMenu}>
             <div className="text-2xl font-bold cursor-pointer flex items-center gap-2">
@@ -73,24 +72,60 @@ export default function Navbar({ user }: Props) {
           </Link>
         </div>
 
-        {/* CENTRO: MENÚ PRINCIPAL (Móvil y PC) */}
+        {/* VISTA DE ESCRITORIO (PC) */}
+        {/* Se oculta en móvil (hidden) y se muestra en PC (md:flex)    */}
+        <div className="hidden md:flex md:gap-5 items-center">
+          {/* Enlaces de Navegación PC */}
+          {isLoggedIn && navLinks.map((link) => (
+            link.show && (
+              <Link
+                key={`pc-${link.href}`}
+                href={link.href}
+                className={`
+                  text-white text-base transition-colors
+                  ${pathname === link.href
+                    ? 'underline decoration-2 underline-offset-4 font-bold text-green-100'
+                    : 'hover:text-green-200 hover:underline'
+                  }
+                `}
+              >
+                {link.label}
+              </Link>
+            )
+          ))}
+
+          {/* Botón Login PC */}
+          {!isLoggedIn && (
+            <Link
+              href="/login"
+              className="md:ml-230 bg-green-800 hover:bg-green-700 text-white text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-lg border border-green-700 shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              Acceso Administrativo
+            </Link>
+          )}
+        </div>
+
+        
+        {/* VISTA DE TELÉFONO (MÓVIL) */}
         <div className={`
-          items-center transition-all duration-200 ease-in-out
-          ${open
-            ? 'flex flex-col absolute top-full left-0 w-full bg-green-900 px-6 pt-5 pb-5 shadow-xl border-t border-green-800 gap-4 z-50'
-            : 'hidden md:flex md:gap-6'
-          }
+          md:hidden absolute top-full left-0 w-full bg-green-900 px-6 pt-5 pb-5 shadow-xl border-t border-green-800 flex-col gap-4 z-50
+          ${open ? 'flex' : 'hidden'}
         `}>
+
+          {/* Enlaces de Navegación Móvil */}
           {isLoggedIn && (
             <>
               {navLinks.map((link) => (
                 link.show && (
                   <Link
-                    key={link.href}
+                    key={`mobile-${link.href}`}
                     href={link.href}
                     onClick={closeMenu}
                     className={`
-                      text-white w-full md:w-auto text-lg md:text-base py-2 md:py-0 transition-colors
+                      text-white w-full text-lg py-2 transition-colors
                       ${pathname === link.href
                         ? 'underline decoration-2 underline-offset-4 font-bold text-green-100'
                         : 'hover:text-green-200 hover:underline'
@@ -102,8 +137,8 @@ export default function Navbar({ user }: Props) {
                 )
               ))}
 
-              {/* MÓVIL: USUARIO Y SALIR */}
-              <div className="md:hidden w-full border-t border-green-800 mt-2 pt-4 flex items-center justify-between">
+              {/* Información de Usuario y Cerrar Sesión (Móvil) */}
+              <div className="w-full border-t border-green-800 mt-2 pt-4 flex items-center justify-between">
                 <button
                   onClick={() => { handleLogout(); closeMenu(); }}
                   className="cursor-pointer text-red-400 hover:text-red-300 font-bold text-lg flex items-center gap-2"
@@ -119,12 +154,12 @@ export default function Navbar({ user }: Props) {
             </>
           )}
 
-          {/* BOTÓN LOGIN */}
+          {/* Botón Login Móvil */}
           {!isLoggedIn && (
             <Link
               href="/login"
               onClick={closeMenu}
-              className="md:ml-230 bg-green-800 hover:bg-green-700 text-white text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-lg border border-green-700 shadow-sm w-full md:w-auto justify-center md:justify-start mb-1 md:mb-0"
+              className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-lg border border-green-700 shadow-sm w-full justify-center mb-1"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -134,15 +169,14 @@ export default function Navbar({ user }: Props) {
           )}
         </div>
 
-        {/* DERECHA: USUARIO Y HAMBURGUESA */}
+        {/* CONTROLES DERECHA (Usuario PC / Hamburguesa) */}
         <div className="flex items-center gap-5">
-
-          {/* Usuario PC */}
+          {/* Usuario PC (Menú desplegable) */}
           {isLoggedIn && (
             <div className="relative hidden md:block">
               <button
                 onClick={() => setAccountOpen(!accountOpen)}
-                className="text-white hover:underline flex items-center gap-1 font-medium"
+                className="cursor-pointer text-white hover:underline flex items-center gap-1 font-medium"
                 aria-expanded={accountOpen}
                 aria-haspopup="true"
               >
@@ -151,7 +185,7 @@ export default function Navbar({ user }: Props) {
 
               {accountOpen && (
                 <>
-                  {/* Backdrop transparente para cerrar menú de usuario en PC */}
+                  {/* Backdrop transparente para cerrar menú PC */}
                   <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
 
                   <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-md w-48 flex flex-col p-2 z-50 border border-gray-100 animate-in fade-in zoom-in-95 duration-100">
@@ -172,7 +206,7 @@ export default function Navbar({ user }: Props) {
             </div>
           )}
 
-          {/* Botón Hamburguesa */}
+          {/* Botón Hamburguesa (Visible solo en móvil) */}
           <button
             className="cursor-pointer flex flex-col gap-1 md:hidden p-2 z-50 relative"
             onClick={() => setOpen(!open)}
@@ -183,11 +217,10 @@ export default function Navbar({ user }: Props) {
             <span className={`w-6 h-[3px] bg-white transition-all duration-300 ${open ? 'opacity-0' : ''}`}></span>
             <span className={`w-6 h-[3px] bg-white transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`}></span>
           </button>
-
         </div>
       </nav>
 
-      {/*BACKDROP*/}
+      {/* BACKDROP PARA MENÚ MÓVIL */}
       {open && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 md:hidden"

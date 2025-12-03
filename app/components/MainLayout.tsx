@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children, user }) => {
       {/* Navbar fijo en la parte superior */}
       <Navbar user={user || null} />
 
-      <main className="grow container mx-auto px-4 py-8 pt-20">
+      <main className="grow container mx-auto px-4 pb-2 pt-19">
         {children}
       </main>
 

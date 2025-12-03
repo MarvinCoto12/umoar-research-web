@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 const SLIDES = [
     '/img/universidad1.jpg',
@@ -26,7 +27,7 @@ export default function HeroSlider() {
     }, [currentSlide, nextSlide]);
 
     return (
-        <div className="w-full max-w-2xl mx-auto mb-5">
+        <div className="w-full md:max-w-3xl mx-auto mb-3.5">
             {/* Contenedor Flex: Botón - Imagen - Botón */}
             <div className="flex items-center gap-2 md:gap-4">
 
@@ -43,7 +44,7 @@ export default function HeroSlider() {
 
                 {/* VENTANA DEL SLIDER */}
                 {/* Altura: 200px en móvil (h-[200px]), 200px en escritorio (md:h-[400px]) */}
-                <div className="relative w-full h-[200px] md:h-[200px] overflow-hidden rounded-xl md:rounded-2xl shadow-md bg-gray-200">
+                <div className="relative w-full h-[200px] md:h-[220px] overflow-hidden rounded-xl md:rounded-2xl shadow-md bg-gray-200">
 
                     {/* Imágenes */}
                     {SLIDES.map((src, index) => (
@@ -52,10 +53,13 @@ export default function HeroSlider() {
                             className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                                 }`}
                         >
-                            <img
+                            <Image
                                 src={src}
                                 alt={`Slide ${index + 1}`}
                                 className="w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1100px"
+                                priority={index === 0}
                             />
                         </div>
                     ))}

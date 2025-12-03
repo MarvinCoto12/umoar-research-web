@@ -5,7 +5,7 @@ import Layout from '../components/MainLayout';
 import { User } from '@/types';
 
 type Props = {
-    user: User | null; // Recibimos el usuario
+    user: User | null;
 };
 
 export default function FormClient({ user }: Props) {
@@ -86,9 +86,9 @@ export default function FormClient({ user }: Props) {
 
             // Redirigir al panel después de subir
             setTimeout(() => {
-                router.push('/dashboard'); 
-                router.refresh(); 
-            }, 1000);
+                router.push('/dashboard');
+                router.refresh();
+            }, 800);
 
         } catch (error) {
             console.error(error);
@@ -101,8 +101,8 @@ export default function FormClient({ user }: Props) {
     return (
         // Pasamos el usuario al Layout
         <Layout user={user}>
-            <div className="bg-white text-black py-8 px-6 rounded-xl shadow-lg container mx-auto border border-gray-100">
-                <h2 className="text-3xl font-bold text-center mb-8 text-green-900">
+            <div className="bg-white text-black py-6 px-6 rounded-xl shadow-lg container mx-auto border border-gray-100">
+                <h2 className="text-3xl font-bold text-center mb-6 ml-5 text-green-900">
                     Publicar Nueva Investigación
                 </h2>
 
@@ -144,17 +144,19 @@ export default function FormClient({ user }: Props) {
                             <span className="text-red-500">*</span></label>
 
                         <select
-                            className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+                            className={`p-3 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all ${
+                                career === "" ? "text-gray-700" : "text-black"
+                            }`}
                             value={career}
                             onChange={(e) => setCareer(e.target.value)}
                             required
                         >
                             <option value="" disabled>Selecciona una carrera</option>
-                            <option value="">Licenciatura en Ciencias de la Computación</option>
-                            <option value="">Licenciatura en Administración de Empresas</option>
-                            <option value="">Licenciatura en Ciencias Jurídicas</option>
-                            <option value="">Licenciatura en Contaduria Pública</option>
-                            <option value="">Ingeniería Agrónomica</option>
+                            <option value="Lic. Ciencias de la Computación">Licenciatura en Ciencias de la Computación</option>
+                            <option value="Lic. Administración de Empresas">Licenciatura en Administración de Empresas</option>
+                            <option value="Lic. Ciencias Jurídicas">Licenciatura en Ciencias Jurídicas</option>
+                            <option value="Lic. Contaduria Pública">Licenciatura en Contaduria Pública</option>
+                            <option value="Ingeniería Agrónomica">Ingeniería Agrónomica</option>
                         </select>
                     </div>
 
@@ -243,16 +245,15 @@ export default function FormClient({ user }: Props) {
                         </div>
                     )}
 
-                    <div className="flex justify-center pt-4">
+                    <div className="flex justify-center pt-1">
                         <button
                             type="submit"
                             disabled={isUploading}
-                            className={`
-                w-full md:w-auto px-8 py-3 rounded-lg font-bold text-white shadow-md transition-all
-                ${isUploading
+                            className={`w-full md:w-auto px-8 py-3 rounded-lg font-bold text-white shadow-md transition-all
+                        ${isUploading
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-green-700 hover:bg-green-800 hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5'}
-              `}
+                                    `}
                         >
                             {isUploading ? 'Subiendo...' : 'Publicar Investigación'}
                         </button>

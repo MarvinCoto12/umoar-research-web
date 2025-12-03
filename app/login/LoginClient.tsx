@@ -24,7 +24,7 @@ export default function LoginClient() {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                // ÉXITO: Forzamos la navegación para que el Router de Next.js refresque el estado
+                // Forzamos la navegación para que el Router de Next.js refresque el estado
                 router.refresh();
                 router.push("/dashboard");
             } else {
@@ -47,20 +47,27 @@ export default function LoginClient() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input
+                        id="email"
+                        name="email"
                         type="email"
                         placeholder="Correo@umoar.edu.sv"
                         value={email}
+                        maxLength={30}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        autoComplete="email"
                         className="border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-black"
                     />
 
                     <input
+                        id="password"
+                        name="password"
                         type="password"
                         placeholder="Contraseña"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        autoComplete="current-password"
                         className="border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-black"
                     />
 
