@@ -30,6 +30,7 @@ export default async function PublicHome() {
       file: `/uploads/${r.filename}`, 
       createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
       originalName: r.originalName,
+      isActive: r.is_active,
     }));
 
   } catch (error) {
