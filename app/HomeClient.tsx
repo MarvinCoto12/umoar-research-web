@@ -137,9 +137,9 @@ export default function HomeClient({ publications, user }: Props) {
                             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-white z-10">
                                 <div className="pr-8">
                                     <h2 className="text-2xl font-bold text-gray-900 line-clamp-1" title={selectedPub.title}>{selectedPub.title}</h2>
+                                    {/* CORRECCIÓN DE ESPACIO APLICADA */}
                                     <p className="text-sm text-gray-500">
-                                        Publicado por
-                                        {selectedPub.author}
+                                        Publicado por {selectedPub.author}
                                     </p>
                                 </div>
                                 <button
@@ -178,26 +178,64 @@ export default function HomeClient({ publications, user }: Props) {
                                         </div>
 
                                         {selectedPub.file && (
-                                            <a
-                                                href={selectedPub.file}
-                                                download
-                                                className="flex items-center justify-center w-full gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-green-700/20 active:scale-95"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                                Descargar PDF
-                                            </a>
+                                            <div className="space-y-3">
+                                                <a
+                                                    href={selectedPub.file}
+                                                    download
+                                                    className="flex items-center justify-center w-full gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-green-700/20 active:scale-95"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                                    Descargar PDF
+                                                </a>
+                                                
+                                                {/* Botón extra para abrir en nueva pestaña (útil en móviles si el iframe falla) */}
+                                                <a
+                                                    href={selectedPub.file}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="lg:hidden flex items-center justify-center w-full gap-2 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl hover:bg-gray-50 transition-all"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                    Abrir PDF en pantalla completa
+                                                </a>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Panel Derecho: Visor PDF */}
-                                <div className="w-full lg:w-2/3 bg-gray-200 relative">
+                                <div className="w-full lg:w-2/3 bg-gray-200 relative flex flex-col justify-center">
                                     {selectedPub.file ? (
-                                        <iframe
-                                            src={`${selectedPub.file}#toolbar=0&view=FitH`}
-                                            className="w-full h-full absolute inset-0"
-                                            title="Vista previa del PDF"
-                                        />
+                                        <>
+                                            {/* Iframe estándar (mejorado para iOS con scrolling) */}
+                                            <iframe
+                                                src={`${selectedPub.file}#toolbar=0&view=FitH`}
+                                                className="w-full h-full absolute inset-0 md:block hidden"
+                                                title="Vista previa del PDF"
+                                            />
+                                            
+                                            {/* Object para móviles (a veces mejor soporte) o Mensaje de Fallback */}
+                                            <div className="md:hidden w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                                                <object
+                                                    data={selectedPub.file}
+                                                    type="application/pdf"
+                                                    className="w-full h-full rounded-lg shadow-sm bg-white"
+                                                >
+                                                    {/* Fallback si el navegador móvil no soporta visualización directa */}
+                                                    <div className="flex flex-col items-center justify-center h-full gap-4">
+                                                        <svg className="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                        <p className="text-gray-600 font-medium">Tu dispositivo no soporta la vista previa integrada.</p>
+                                                        <a 
+                                                            href={selectedPub.file} 
+                                                            target="_blank"
+                                                            className="text-green-700 font-bold underline"
+                                                        >
+                                                            Toque aquí para ver el archivo
+                                                        </a>
+                                                    </div>
+                                                </object>
+                                            </div>
+                                        </>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4">
                                             <svg className="w-16 h-16 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" /></svg>

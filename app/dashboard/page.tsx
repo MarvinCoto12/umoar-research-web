@@ -16,16 +16,16 @@ export default async function HomePage() {
 
   const usuario = session.usuario;
   
-  // 1. Aquí ya tenemos el primer "WHERE"
+  // Ver todas las publicaciones (activas e inactivas) en el dashboard para poder gestionarlas.
   let query = `
-    SELECT id, filename, title, author, created_at, uploader_id, uploader_name 
+    SELECT id, filename, title, author, created_at, uploader_id, uploader_name, is_active 
     FROM publicaciones 
-    WHERE is_active = 1
+    WHERE 1=1 
   `;
   const queryParams: any[] = [];
 
+  // Si no es admin, filtramos solo las suyas (pero traemos activas y ocultas)
   if (usuario.role !== 'admin') {
-    // CORRECCIÓN: Usamos "AND" (no "WHERE") porque ya existe un WHERE arriba
     query += " AND uploader_id = ?"; 
     queryParams.push(usuario.id);
   }
@@ -42,6 +42,7 @@ export default async function HomePage() {
       title: r.title,
       author: r.author,
       filename: r.filename,
+      isActive: r.is_active === 1, 
       createdAt: new Date(r.created_at).toISOString(),
       uploader: {
         id: r.uploader_id,

@@ -16,6 +16,7 @@ export type Publication = {
   filename?: string; // Nombre físico (útil para el admin)
   originalName?: string;
   createdAt: string; 
+  isActive: boolean; 
   uploader?: {
     id: number;
     nombre: string;

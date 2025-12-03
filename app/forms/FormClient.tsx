@@ -85,7 +85,10 @@ export default function FormClient({ user }: Props) {
             if (fileInput) fileInput.value = '';
 
             // Redirigir al panel después de subir
-            // router.push('/home');
+            setTimeout(() => {
+                router.push('/dashboard'); 
+                router.refresh(); 
+            }, 1000);
 
         } catch (error) {
             console.error(error);
@@ -113,6 +116,7 @@ export default function FormClient({ user }: Props) {
                         <input
                             className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                             value={title}
+                            maxLength={55}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ej: Impacto de la tecnología..."
                             required
@@ -127,6 +131,7 @@ export default function FormClient({ user }: Props) {
                         <input
                             className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                             value={author}
+                            maxLength={55}
                             onChange={(e) => setAuthor(e.target.value)}
                             placeholder="Ej: Juan Pérez, María López"
                             required
@@ -145,11 +150,11 @@ export default function FormClient({ user }: Props) {
                             required
                         >
                             <option value="" disabled>Selecciona una carrera</option>
-                            <option value="Lic. ciencias de la computación">Licenciatura en Ciencias de la Computación</option>
-                            <option value="Civil">Licenciatura en Administración de Empresas</option>
-                            <option value="Electrónica">Licenciatura en Ciencias Jurídicas</option>
-                            <option value="Electrónica">Licenciatura en Contaduria Pública</option>
-                            <option value="Electrónica">Ingeniería Agrónomica</option>
+                            <option value="">Licenciatura en Ciencias de la Computación</option>
+                            <option value="">Licenciatura en Administración de Empresas</option>
+                            <option value="">Licenciatura en Ciencias Jurídicas</option>
+                            <option value="">Licenciatura en Contaduria Pública</option>
+                            <option value="">Ingeniería Agrónomica</option>
                         </select>
                     </div>
 
