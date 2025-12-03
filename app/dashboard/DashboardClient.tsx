@@ -13,26 +13,38 @@ export default function DashboardClient({ initialPublications, usuario }: Props)
     const [publicaciones, setPublicaciones] = useState<Publication[]>(initialPublications);
     const router = useRouter();
 
-    const handleHide = async (filename: string) => {
-        if (!confirm("¿Estás seguro de ocultar esta publicación? Ya no será visible en la página principal.")) return;
+    const handleToggleStatus = async (pub: Publication) => {
+        const nuevoEstado = !pub.isActive;
+        const accion = nuevoEstado ? "activar" : "ocultar";
+
+        if (!confirm(`¿Estás seguro de ${accion} esta publicación?`)) return;
 
         try {
             const res = await fetch("/api/uploads", {
-                method: "DELETE", 
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ filename }),
+                body: JSON.stringify({
+                    filename: pub.filename,
+                    isActive: nuevoEstado
+                }),
             });
             const data = await res.json();
 
             if (data.success) {
-                alert("Publicación ocultada correctamente.");
-                setPublicaciones((prev) => prev.filter((p) => p.filename !== filename));
+                setPublicaciones((prev) =>
+                    prev.map(p =>
+                        p.filename === pub.filename
+                            ? { ...p, isActive: nuevoEstado }
+                            : p
+                    )
+                );
                 router.refresh();
             } else {
                 alert("Error: " + data.error);
             }
         } catch (error) {
-            console.error("Error al ocultar la publicación:", error);
+            console.error(`Error al ${accion} la publicación:`, error);
+            alert("Ocurrió un error de conexión.");
         }
     };
 
@@ -121,7 +133,7 @@ export default function DashboardClient({ initialPublications, usuario }: Props)
                                 </p>
 
                                 {usuario.role !== 'admin' && (
-                                    <button onClick={() => router.push('/forms')} className="mt-4 text-green-700 font-medium hover:underline">
+                                    <button onClick={() => router.push('/forms')} className="cursor-pointer mt-4 text-green-700 font-medium hover:underline">
                                         Comienza subiendo tu primera investigación
                                     </button>
                                 )}
@@ -156,11 +168,16 @@ export default function DashboardClient({ initialPublications, usuario }: Props)
 
                                                 <td className="p-4 text-right">
                                                     <button
-                                                        onClick={() => pub.filename && handleHide(pub.filename)}
+                                                        onClick={() => pub.filename && handleToggleStatus(pub)}
                                                         disabled={!pub.filename}
-                                                        className="cursor-pointer text-red-600 hover:text-white hover:bg-red-600 px-3 py-1.5 rounded-md transition-all font-medium text-xs border border-red-100 hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className={`cursor-pointer px-3 py-1.5 rounded-md transition-all font-bold text-xs border shadow-smdisabled:opacity-50 disabled:cursor-not-allowed
+                                                            ${pub.isActive
+                                                                ? 'text-red-600 border-red-200 bg-white hover:bg-red-50'
+                                                                : 'text-white border-green-600 bg-green-600 hover:bg-green-700 hover:shadow-md'
+                                                            }
+                                                        `}
                                                     >
-                                                        Ocultar
+                                                        {pub.isActive ? 'Ocultar' : 'Activar Publicación'}
                                                     </button>
                                                 </td>
                                             </tr>

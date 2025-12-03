@@ -26,6 +26,11 @@ export default function RegisterClient() {
 
             const data = await res.json();
 
+            if (password.length < 6) {
+                setMensaje("Error: La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
             if (res.ok && data.success) {
                 setMensaje(`¡Éxito! Usuario registrado: ${email}`);
                 setNombre("");
@@ -64,6 +69,7 @@ export default function RegisterClient() {
                         <input
                             type="text"
                             value={nombre}
+                            maxLength={40}
                             onChange={(e) => setNombre(e.target.value)}
                             placeholder="Ej. María Pérez"
                             required
@@ -73,15 +79,19 @@ export default function RegisterClient() {
 
                     {/* Email */}
                     <label className="text-sm text-gray-800 font-semibold">
-                        Correo@umoar.edu.sv
+                        Correo Institucional
                         <input
                             type="email"
                             value={email}
+                            maxLength={35}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="usuario@umoar.edu.sv"
+                            placeholder="Ej: 1234567@umoar.edu.sv"
                             required
                             className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all"
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                            Formato: Máximo 7 dígitos + @umoar.edu.sv
+                        </p>
                     </label>
 
                     {/* Contraseña */}
@@ -90,6 +100,7 @@ export default function RegisterClient() {
                         <input
                             type="password"
                             value={password}
+                            maxLength={20}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Mínimo 6 caracteres"
                             required
@@ -108,7 +119,7 @@ export default function RegisterClient() {
                             <option value="user">
                                 Investigador
                             </option>
-                            
+
                             <option value="admin">
                                 Administrador
                             </option>

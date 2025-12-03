@@ -27,15 +27,31 @@ export default function Navbar({ user }: Props) {
   // Función para cerrar menú (usada en links y backdrop)
   const closeMenu = () => setOpen(false);
 
-  // Estilos comunes para evitar repetición
-  const linkStyles = "text-white hover:text-green-200 hover:underline w-full md:w-auto text-lg md:text-base py-2 md:py-0";
-
   // Configuración de enlaces
   const navLinks = [
-    { label: 'Inicio', href: '/', show: true },
-    { label: 'Publicar', href: '/forms', show: pathname !== '/forms' },
-    { label: 'Panel de control', href: '/dashboard', show: pathname !== '/dashboard' },
-    { label: 'Registrar usuarios', href: '/register', show: userRole === 'admin' },
+    {
+      label: 'Inicio',
+      href: '/',
+      // Mostrar Inicio si estamos en /forms o /dashboard
+      show: pathname === '/forms' || pathname === '/dashboard'
+    },
+    {
+      label: 'Publicar',
+      href: '/forms',
+      // Siempre mostrar
+      show: true
+    },
+    {
+      label: 'Panel de control',
+      href: '/dashboard',
+      // Siempre mostrar 
+      show: true
+    },
+    {
+      label: 'Registrar usuarios',
+      href: '/register',
+      show: userRole === 'admin'
+    },
   ];
 
   return (
@@ -73,7 +89,13 @@ export default function Navbar({ user }: Props) {
                     key={link.href}
                     href={link.href}
                     onClick={closeMenu}
-                    className={linkStyles}
+                    className={`
+                      text-white w-full md:w-auto text-lg md:text-base py-2 md:py-0 transition-colors
+                      ${pathname === link.href
+                        ? 'underline decoration-2 underline-offset-4 font-bold text-green-100'
+                        : 'hover:text-green-200 hover:underline'
+                      }
+                    `}
                   >
                     {link.label}
                   </Link>
@@ -84,7 +106,7 @@ export default function Navbar({ user }: Props) {
               <div className="md:hidden w-full border-t border-green-800 mt-2 pt-4 flex items-center justify-between">
                 <button
                   onClick={() => { handleLogout(); closeMenu(); }}
-                  className="text-red-400 hover:text-red-300 font-bold text-lg flex items-center gap-2"
+                  className="cursor-pointer text-red-400 hover:text-red-300 font-bold text-lg flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                   Cerrar sesión
@@ -97,12 +119,12 @@ export default function Navbar({ user }: Props) {
             </>
           )}
 
-          {/* BOTÓN LOGIN (Si no logueado) */}
+          {/* BOTÓN LOGIN */}
           {!isLoggedIn && (
             <Link
               href="/login"
               onClick={closeMenu}
-              className="md:ml-4 bg-green-800 hover:bg-green-700 text-white text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-lg border border-green-700 shadow-sm w-full md:w-auto justify-center md:justify-start mb-1 md:mb-0"
+              className="md:ml-230 bg-green-800 hover:bg-green-700 text-white text-sm font-medium flex items-center gap-2 px-4 py-2 rounded-lg border border-green-700 shadow-sm w-full md:w-auto justify-center md:justify-start mb-1 md:mb-0"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -166,8 +188,6 @@ export default function Navbar({ user }: Props) {
       </nav>
 
       {/*BACKDROP*/}
-      {/* Este div cubre toda la pantalla debajo del menú pero encima del contenido */}
-      {/* Al hacer clic en él, se cierra el menú. Funciona sin useEffect. */}
       {open && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 md:hidden"

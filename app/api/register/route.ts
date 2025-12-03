@@ -12,15 +12,24 @@ export async function POST(request: Request) {
     const nombre = body.nombre_completo?.trim();
     const email = body.email?.trim();
     const password = body.password;
-    const roleRequest = body.role || "user";
+    const roleRequest = (body.role === "admin" || body.role === "user") ? body.role : "user";
 
     // Validaciones
     if (!nombre || !email || !password) {
       return NextResponse.json({ success: false, message: "Todos los campos son obligatorios" }, { status: 400 });
     }
 
-    if (!email.endsWith("@umoar.edu.sv")) {
-      return NextResponse.json({ success: false, message: "El correo debe ser @umoar.edu.sv" }, { status: 400 });
+    if (password.length < 6) {
+      return NextResponse.json({ success: false, message: "La contraseña debe tener al menos 6 caracteres" }, { status: 400 });
+    }
+
+    const emailRegex = /^\d{1,7}@umoar\.edu\.sv$/;
+
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({
+        success: false,
+        message: "Correo inválido. Debe contener solo 7 números como máximo al inicio y terminar exactamente en @umoar.edu.sv"
+      }, { status: 400 });
     }
 
     // Seguridad de Roles
@@ -31,12 +40,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Solo un administrador puede crear otros administradores" }, { status: 403 });
     }
 
-    // 3. Verificar si existe el correo
+    // Verificar si existe el correo
     const [existing] = await pool.query<RowDataPacket[]>(
-      "SELECT id FROM users WHERE email = ?", 
+      "SELECT id FROM users WHERE email = ?",
       [email]
     );
-    
+
     if (existing.length > 0) {
       return NextResponse.json({ success: false, message: "El correo ya está registrado" }, { status: 400 });
     }
