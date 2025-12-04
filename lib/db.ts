@@ -16,5 +16,5 @@ export const pool = mysql.createPool({
   queueLimit: 0
 });
 
-// En desarrollo, guardamos la conexión en la variable global
+// guardamos la conexión en la variable global
 if (process.env.NODE_ENV !== 'production') globalForDb.conn = pool;

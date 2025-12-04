@@ -24,7 +24,7 @@ export default function LoginClient() {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                // Forzamos la navegación para que el Router de Next.js refresque el estado
+                // Forzar la navegación para que el Router de Next.js refresque el estado
                 router.refresh();
                 router.push("/dashboard");
             } else {

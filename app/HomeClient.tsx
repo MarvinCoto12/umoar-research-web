@@ -15,7 +15,7 @@ export default function HomeClient({ publications, user }: Props) {
 
     const closeModal = () => setSelectedPub(null);
 
-    const normalizeText = (text: string) => {   
+    const normalizeText = (text: string) => {
         return text
             .toLowerCase()
             .normalize("NFD")
@@ -31,7 +31,7 @@ export default function HomeClient({ publications, user }: Props) {
         // Buscar coincidencias en título o autor
         return title.includes(term) || author.includes(term);
     });
-        
+
     return (
         <Layout user={user}>
             <div className="px-4 pb-6 pt-0 sm:px-6"> {/* Padding reducido en móvil */}
@@ -93,7 +93,7 @@ export default function HomeClient({ publications, user }: Props) {
                                     ? `No se encontraron resultados para "${searchTerm}".`
                                     : "No hay investigaciones disponibles por el momento."
                                 }
-                            </p>
+                            </p>
                         </div>
                     ) : (
                         filteredPublications.map((p) => (
@@ -130,7 +130,7 @@ export default function HomeClient({ publications, user }: Props) {
                                             {p.author}
                                         </p>
                                     </div>
-                                    
+
                                     <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-100 flex items-center justify-between text-xs sm:text-sm">
                                         {/* Carrera truncada en móvil */}
                                         <span className="text-gray-500 font-medium truncate max-w-[120px] sm:max-w-none">
@@ -182,15 +182,8 @@ export default function HomeClient({ publications, user }: Props) {
                                 {/* Panel Izquierdo: Información */}
                                 <div className="w-full lg:w-1/3 p-5 sm:p-8 overflow-y-auto bg-white border-r border-gray-200 shadow-sm z-10 order-2 lg:order-1">
                                     <div className="space-y-6">
-                                        <div>
-                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                Descripción Completa
-                                            </h4>
-                                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                                                {selectedPub.description || "No hay una descripción detallada para este documento."}
-                                            </p>
-                                        </div>
 
+                                        {/* FICHA TÉCNICA (Primero) */}
                                         <div className="bg-gray-50 p-4 rounded-xl space-y-3 border border-gray-100">
                                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ficha Técnica</h4>
                                             <div className="grid grid-cols-1 gap-2 text-sm">
@@ -201,8 +194,9 @@ export default function HomeClient({ publications, user }: Props) {
                                             </div>
                                         </div>
 
+                                        {/* BOTONES (Segundo) */}
                                         {selectedPub.file && (
-                                            <div className="space-y-3 pb-8 lg:pb-0">
+                                            <div className="space-y-3">
                                                 <a
                                                     href={selectedPub.file}
                                                     download
@@ -212,7 +206,6 @@ export default function HomeClient({ publications, user }: Props) {
                                                     Descargar PDF
                                                 </a>
 
-                                                {/* Botón extra móvil */}
                                                 <a
                                                     href={selectedPub.file}
                                                     target="_blank"
@@ -224,6 +217,17 @@ export default function HomeClient({ publications, user }: Props) {
                                                 </a>
                                             </div>
                                         )}
+
+                                        {/* DESCRIPCIÓN COMPLETA (Al final) */}
+                                        <div className="pb-8 lg:pb-0">
+                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                Descripción Completa
+                                            </h4>
+                                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                                                {selectedPub.description || "No hay una descripción disponible para esta publicación."}
+                                            </p>
+                                        </div>
+
                                     </div>
                                 </div>
 
