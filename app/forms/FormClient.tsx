@@ -116,7 +116,7 @@ export default function FormClient({ user }: Props) {
                         <input
                             className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                             value={title}
-                            maxLength={55}
+                            maxLength={60}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ej: Impacto de la tecnología..."
                             required
@@ -131,7 +131,7 @@ export default function FormClient({ user }: Props) {
                         <input
                             className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                             value={author}
-                            maxLength={55}
+                            maxLength={60}
                             onChange={(e) => setAuthor(e.target.value)}
                             placeholder="Ej: Juan Pérez, María López"
                             required
@@ -182,8 +182,9 @@ export default function FormClient({ user }: Props) {
                         <textarea
                             className="p-3 rounded-lg bg-gray-50 border border-gray-300 text-black h-32 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                             value={description}
+                            maxLength={150}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Breve descripción del contenido..."
+                            placeholder="Breve descripción del contenido (150 caracteres max)..."
                         />
                     </div>
 
