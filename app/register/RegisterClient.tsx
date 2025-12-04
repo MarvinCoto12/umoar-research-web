@@ -70,7 +70,7 @@ export default function RegisterClient() {
                         <input
                             type="text"
                             value={nombre}
-                            maxLength={55}
+                            maxLength={60}
                             onChange={(e) => setNombre(e.target.value)}
                             placeholder="Ej. María Pérez"
                             required
