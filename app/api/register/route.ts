@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "La contraseña debe tener al menos 6 caracteres" }, { status: 400 });
     }
 
-    const emailRegex = /^\d{1,7}@umoar\.edu\.sv$/;
+    const emailRegex = /^[^@\s]+@umoar\.edu\.sv$/;
 
     if (!emailRegex.test(email)) {
       return NextResponse.json({

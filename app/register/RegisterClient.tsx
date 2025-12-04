@@ -70,7 +70,7 @@ export default function RegisterClient() {
                         <input
                             type="text"
                             value={nombre}
-                            maxLength={40}
+                            maxLength={55}
                             onChange={(e) => setNombre(e.target.value)}
                             placeholder="Ej. María Pérez"
                             required
@@ -85,15 +85,15 @@ export default function RegisterClient() {
                         <input
                             type="email"
                             value={email}
-                            maxLength={35}
+                            maxLength={70}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Ej: 1234567@umoar.edu.sv"
+                            placeholder="Ej: nombre123@umoar.edu.sv"
                             required
                             autoComplete="off"
                             className="w-full mt-2 p-3 text-base rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            Formato: Máximo 7 dígitos + @umoar.edu.sv
+                            Formato: Debe terminar en @umoar.edu.sv
                         </p>
                     </label>
 
@@ -103,7 +103,7 @@ export default function RegisterClient() {
                         <input
                             type="password"
                             value={password}
-                            maxLength={20}
+                            maxLength={25}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Mínimo 6 caracteres"
                             required
