@@ -27,7 +27,7 @@ export default async function PublicHome() {
       career: r.career,
       type: r.type,
       description: r.description,
-      file: `/uploads/${r.filename}`, 
+      file: r.filename.startsWith('http') ? r.filename : `/uploads/${r.filename}`,
       createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
       originalName: r.originalName,
       isActive: r.is_active,
