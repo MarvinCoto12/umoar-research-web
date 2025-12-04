@@ -15,11 +15,23 @@ export default function HomeClient({ publications, user }: Props) {
 
     const closeModal = () => setSelectedPub(null);
 
-    const filteredPublications = publications.filter((p) =>
-        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.author.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const normalizeText = (text: string) => {   
+        return text
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
+    };
 
+    // Filtro para buscar por titulo o autor
+    const filteredPublications = publications.filter((p) => {
+        const term = normalizeText(searchTerm);
+        const title = normalizeText(p.title);
+        const author = normalizeText(p.author);
+
+        // Buscar coincidencias en título o autor
+        return title.includes(term) || author.includes(term);
+    });
+        
     return (
         <Layout user={user}>
             <div className="px-4 pb-6 pt-0 sm:px-6"> {/* Padding reducido en móvil */}
@@ -43,11 +55,11 @@ export default function HomeClient({ publications, user }: Props) {
                                     id="search-input"
                                     name="search"
                                     type="text"
-                                    maxLength={30}
-                                    placeholder="Buscar..."
+                                    maxLength={50}
+                                    placeholder="Buscar por título o autor..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="grow bg-transparent text-gray-700! px-2 py-2 text-base sm:text-lg placeholder-gray-500 border-0! outline-none! ring-0! shadow-none!"
+                                    className="grow bg-transparent text-gray-700! px-2 py-2 text-base sm:text-lg placeholder-gray-500 placeholder:text-sm sm:placeholder:text-base border-0! outline-none! ring-0! shadow-none!"
                                     style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
                                 />
 
@@ -77,8 +89,11 @@ export default function HomeClient({ publications, user }: Props) {
                     {filteredPublications.length === 0 ? (
                         <div className="col-span-full text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                             <p className="text-gray-500 text-base sm:text-lg">
-                                No hay publicaciones disponibles.
-                            </p>
+                                {searchTerm
+                                    ? `No se encontraron resultados para "${searchTerm}".`
+                                    : "No hay investigaciones disponibles por el momento."
+                                }
+                            </p>
                         </div>
                     ) : (
                         filteredPublications.map((p) => (
@@ -93,7 +108,7 @@ export default function HomeClient({ publications, user }: Props) {
                                 <div className="p-3 sm:p-6 flex flex-col grow">
                                     <div className="flex justify-between items-start mb-2 sm:mb-4">
                                         {/* Badge más pequeño en móvil */}
-                                        <span className="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase tracking-wider truncate max-w-[100px]">
+                                        <span className="bg-green-50 text-green-700 text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase tracking-wider">
                                             {p.type || 'General'}
                                         </span>
                                         {/* Fecha oculta en móvil para ahorrar espacio */}
@@ -115,14 +130,7 @@ export default function HomeClient({ publications, user }: Props) {
                                             {p.author}
                                         </p>
                                     </div>
-
-                                    {/* Descripción: Oculta en móvil (hidden sm:block) */}
-                                    {p.description && (
-                                        <p className="text-sm text-gray-500 line-clamp-3 mb-6 grow hidden sm:block">
-                                            {p.description}
-                                        </p>
-                                    )}
-
+                                    
                                     <div className="mt-auto pt-2 sm:pt-4 border-t border-gray-100 flex items-center justify-between text-xs sm:text-sm">
                                         {/* Carrera truncada en móvil */}
                                         <span className="text-gray-500 font-medium truncate max-w-[120px] sm:max-w-none">
