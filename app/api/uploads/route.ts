@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from '@/lib/session';
 import { cookies } from 'next/headers';
-import fs from 'fs/promises';
-import path from 'path';
 import { pool } from '@/lib/db';
 import { RowDataPacket } from 'mysql2';
 
@@ -43,26 +42,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'El/los autor(es) es/son obligatorio/s' }, { status: 400 });
     }
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await fs.mkdir(uploadsDir, { recursive: true });
-    const timestamp = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const filename = `${timestamp}_${safeName}`;
-    const filePath = path.join(uploadsDir, filename);
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(filePath, buffer);
+    // SUBIDA A VERCEL BLOB
+    // Subimos el archivo directamente a la nube
+    const blob = await put(file.name, file, {
+      access: 'public',
+    });
 
     // Insertar en la Base de Datos (MySQL)
     const createdAt = new Date().toISOString();
+    const timestamp = Date.now();
+
+    // Ahora 'filename' guardará la URL completa de Vercel Blob
+    const filename = blob.url;
 
     try {
       await pool.query(
         `INSERT INTO publicaciones (id, filename, original_name, title, author, career, type, description, uploader_id, uploader_name, created_at, is_active)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`, // 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
         [
           timestamp,
-          filename,
+          filename, // Guardamos la URL aquí
           file.name,
           title,
           author,
@@ -76,11 +75,11 @@ export async function POST(request: Request) {
       );
     } catch (dbErr) {
       console.error("Error DB:", dbErr);
-      await fs.unlink(filePath).catch(() => { });
+    
       return NextResponse.json({ success: false, error: 'Error al guardar en base de datos' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, file: `/uploads/${filename}` });
+    return NextResponse.json({ success: true, file: blob.url });
 
   } catch (error) {
     console.error('Error uploads POST:', error);
@@ -108,7 +107,9 @@ export async function GET() {
       description: r.description,
       uploader: r.uploaderId ? { id: r.uploaderId, nombre: r.uploaderName } : null,
       createdAt: r.createdAt,
-      file: `/uploads/${r.filename}`,
+  
+      // Si el 'filename' empieza con http, es un Blob de Vercel.
+      file: r.filename.startsWith('http') ? r.filename : `/uploads/${r.filename}`,
     }));
 
     return NextResponse.json({ success: true, list });

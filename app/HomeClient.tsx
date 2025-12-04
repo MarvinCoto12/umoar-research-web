@@ -40,7 +40,7 @@ export default function HomeClient({ publications, user }: Props) {
 
                 <header className="mb-5 text-center">
                     <h1 className="text-2xl md:text-4xl font-extrabold text-black">
-                        Bienvenido a la plataforma de Proyectos de Investigación de Monseñor Oscar Arnulfo Romero
+                        Bienvenido a la Plataforma de Proyectos de Investigación de la Universidad Monseñor Óscar Arnulfo Romero
                     </h1>
                     <p className="mt-1.5 text-gray-600 text-lg sm:block">
                         Aquí podrás encontrar las investigaciones publicadas por nuestra institución.
