@@ -12,6 +12,7 @@ type Props = {
 export default function HomeClient({ publications, user }: Props) {
     const [selectedPub, setSelectedPub] = useState<Publication | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const closeModal = () => setSelectedPub(null);
 
@@ -31,6 +32,34 @@ export default function HomeClient({ publications, user }: Props) {
         // Buscar coincidencias en título o autor
         return title.includes(term) || author.includes(term);
     });
+
+    // FUNCIÓN PARA FORZAR DESCARGA
+    const handleDownload = async (url: string, filename: string) => {
+        setIsDownloading(true);
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error en la red");
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename; // Esto fuerza el nombre y la descarga
+            document.body.appendChild(link);
+            link.click();
+
+            // Limpieza
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Error descargando:", error);
+            // Si falla la descarga programática, abrir en nueva pestaña
+            window.open(url, '_blank');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     return (
         <Layout user={user}>
@@ -194,23 +223,31 @@ export default function HomeClient({ publications, user }: Props) {
                                             </div>
                                         </div>
 
-                                        {/* BOTONES (Segundo) */}
+                                        {/* BOTONES */}
                                         {selectedPub.file && (
                                             <div className="space-y-3">
-                                                <a
-                                                    href={selectedPub.file}
-                                                    download
-                                                    className="flex items-center justify-center w-full gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-green-700/20 active:scale-95"
+                                                {/* BOTÓN DESCARGAR */}
+                                                <button
+                                                    onClick={() => selectedPub.file && handleDownload(selectedPub.file, selectedPub.originalName || 'documento.pdf')}
+                                                    disabled={isDownloading}
+                                                    className={`cursor-pointer flex items-center justify-center w-full gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-green-700/20 active:scale-95 ${isDownloading ? 'opacity-70 cursor-wait' : ''}`}
                                                 >
-                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                                    Descargar PDF
-                                                </a>
+                                                    {isDownloading ? (
+                                                        <span className="text-sm">Descargando...</span>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                                            Descargar PDF
+                                                        </>
+                                                    )}
+                                                </button>
 
+                                                {/* BOTÓN ABRIR */}
                                                 <a
                                                     href={selectedPub.file}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="lg:hidden flex items-center justify-center w-full gap-2 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl hover:bg-gray-50 transition-all"
+                                                    className="flex items-center justify-center w-full gap-2 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl hover:bg-gray-50 transition-all"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                                     Abrir PDF
